@@ -15,6 +15,20 @@
 
 Instead of writing complex Zod or Joi schemas just to clean a payload, `typepurify` automatically re-infers your types at compile-time and safely handles nested records and array structures.
 
+## ⚡ Why `typepurify`? (vs. Zod / Lodash)
+
+When developers receive messy data from an API, they usually reach for two tools, both of which have major drawbacks:
+
+1. **Validation Libraries (Zod, Joi, Yup):** These are massive (Zod is ~550kB) and require you to write hundreds of lines of duplicate schema definitions just to strip `null` values.
+2. **Utility Libraries (Lodash `pickBy` / `omitBy`):** These are also massive (Lodash is ~1.4MB) and **destroy your TypeScript inference**, returning `any` or forcing you to manually re-cast your types.
+
+`typepurify` solves this perfectly:
+
+- **Zero Schemas:** No boilerplate required. Just pass the raw object.
+- **Perfect Type Inference:** It dynamically recalculates your TypeScript interfaces at compile-time, physically removing `null` and `undefined` from the output types.
+- **Microscopic Size:** It is incredibly lightweight (**< 1kB** minified + gzipped) with **zero dependencies**.
+- **Extreme Speed:** The `cleanInPlace` engine is capable of stripping massive, multi-megabyte payloads in milliseconds with zero memory overhead.
+
 ---
 
 ## 🧠 How it Works
