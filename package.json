@@ -34,12 +34,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/vallarasuk/typeclean.git"
+    "url": "https://github.com/vallarasuk/typepurify.git"
   },
   "bugs": {
-    "url": "https://github.com/vallarasuk/typeclean/issues"
+    "url": "https://github.com/vallarasuk/typepurify/issues"
   },
-  "homepage": "https://github.com/vallarasuk/typeclean#readme",
+  "homepage": "https://github.com/vallarasuk/typepurify#readme",
   "keywords": [
     "typescript",
     "type-inference",
