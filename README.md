@@ -47,17 +47,17 @@ graph TD
 ## Installation
 
 ```bash
-npm install @vallarasuk/typeclean
+npm install typeclean
 # or
-yarn add @vallarasuk/typeclean
+yarn add typeclean
 # or
-pnpm add @vallarasuk/typeclean
+pnpm add typeclean
 ```
 
 ## Usage
 
 ```typescript
-import { clean } from '@vallarasuk/typeclean';
+import { clean } from 'typeclean';
 
 const messyPayload = {
   id: 101,
