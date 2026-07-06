@@ -21,28 +21,9 @@ Instead of writing complex Zod or Joi schemas just to clean a payload, `typepuri
 
 Understanding how `typepurify` processes your data is simple. It uses a recursive engine to traverse your nested payloads and instantly strips out unwanted, empty, or undefined values based on your configuration.
 
-```mermaid
-graph TD
-    A[Raw API Payload] --> B(typepurify Engine)
-    B --> C{Value Check}
-
-    C -->|null / undefined| D[Discard Property]
-    C -->|String / Array / Object| E{IsEmpty? & Options set?}
-
-    E -->|Yes| D
-    E -->|No, but it's an Object/Array| F[Recursively Clean Child]
-    E -->|No, it's a Primitive| G[Keep Property]
-
-    F --> B
-    D --> H[Optimized Output]
-    G --> H
-
-    H --> I[(Perfectly Typed Data)]
-
-    style A fill:#4b5563,stroke:#374151,stroke-width:2px,color:#fff
-    style B fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
-    style I fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
-```
+<div align="center">
+  <img src="https://raw.githubusercontent.com/vallarasuk/typepurify/main/assets/flowchart.svg" alt="typepurify Architecture Engine" width="100%" />
+</div>
 
 ## Installation
 
