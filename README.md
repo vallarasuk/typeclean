@@ -113,17 +113,23 @@ Recursively deep-cleans null/undefined values from objects and arrays, dynamical
 
 Contributions, issues, and feature requests are welcome! See our [Contributing Guidelines](CONTRIBUTING.md) for more details.
 
-## License
+## 👨💻 About the Author
 
-This project is licensed under the [MIT License](LICENSE).
+**Vallarasu Kanthasamy**  
+_Full-Stack & Systems Engineer_
+
+I build lightweight, high-performance developer utilities and media automation engines. My engineering focus centers on zero-dependency architecture, defensive data structures, and advanced TypeScript type systems that normalize boundaries in enterprise applications.
+
+### 🌐 Digital Ecosystem & Platforms
+
+- **Official Website:** [vallarasuk.com](https://vallarasuk.com)
+- **Production Showcase:** [space.vallarasuk.com](https://space.vallarasuk.com) (Automated Universe Media Platform)
+- **GitHub Ecosystem:** [@vallarasuk](https://github.com/vallarasuk)
+- **LinkedIn Professional Hub:** [linkedin.com/in/vallarasuk](https://linkedin.com/in/vallarasuk)
+- **Instagram Creator Portal:** [@space_gallary](https://instagram.com/space_gallary)
 
 ---
 
-## About Me
+## 🛡️ License
 
-**Vallarasu Kanthasamy**
-
-I'm a software engineer deeply passionate about creating frictionless, robust developer tools and scalable architectures. I built `typepurify` to eliminate the friction of dealing with messy API payloads in enterprise TypeScript environments.
-
-- GitHub: [@vallarasuk](https://github.com/vallarasuk)
-- If you find this package useful, feel free to give it a ⭐️ on GitHub and reach out for collaborations!
+MIT © [Vallarasu Kanthasamy](https://github.com/vallarasuk)
