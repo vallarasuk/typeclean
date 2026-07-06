@@ -6,6 +6,7 @@
 ---
 
 [![npm version](https://img.shields.io/npm/v/typepurify.svg?style=flat-square)](https://www.npmjs.com/package/typepurify)
+[![npm downloads](https://img.shields.io/npm/dw/typepurify.svg?style=flat-square)](https://www.npmjs.com/package/typepurify)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Build Status](https://github.com/vallarasuk/typepurify/actions/workflows/ci.yml/badge.svg)](https://github.com/vallarasuk/typepurify/actions)
 
