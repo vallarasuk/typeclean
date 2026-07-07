@@ -22,17 +22,34 @@ export type DeepRequired<T> = T extends Builtin
 
 type Builtin = Function | Date | Error | RegExp;
 
+/**
+ * Configuration options for the typepurify cleaning engine.
+ */
 export interface CleanOptions {
+  /** Removes all empty strings `""` from the payload. */
   stripEmptyStrings?: boolean;
+  /** Removes all empty arrays `[]` from the payload. */
   stripEmptyArrays?: boolean;
+  /** Removes all empty objects `{}` from the payload. */
   stripEmptyObjects?: boolean;
+  /** Trims whitespace from strings before processing them. */
   trimStrings?: boolean;
+  /** Custom predicate function. If it returns true, the value is stripped. */
   stripWhen?: (value: any) => boolean;
 }
 
 /**
- * Recursively deep-cleans null/undefined values from objects and arrays,
- * dynamically re-inferring compile-time types without schemas.
+ * Recursively deep-cleans null and undefined values from objects and arrays.
+ * Dynamically re-infers compile-time types without requiring manual schemas.
+ *
+ * @param obj The payload to clean.
+ * @param options Configuration for stripping empty values.
+ * @param seen (Internal) WeakSet to track circular references.
+ * @returns A brand new object with null/undefined values removed, heavily typed via `DeepRequired`.
+ *
+ * @example
+ * const payload = { id: 1, name: null };
+ * const safe = clean(payload); // { id: 1 }
  */
 export function clean<T>(
   obj: T,
@@ -97,9 +114,15 @@ export function clean<T>(
 }
 
 /**
- * Recursively deep-cleans null/undefined values by mutating the original object directly.
+ * Recursively deep-cleans null and undefined values by mutating the original object directly.
  * Offers extreme performance and zero memory overhead for massive payloads.
- * WARNING: Mutates the provided object.
+ *
+ * WARNING: Mutates the provided object. Use `clean()` if you need an immutable operation.
+ *
+ * @param obj The payload to mutate and clean.
+ * @param options Configuration for stripping empty values.
+ * @param seen (Internal) WeakSet to track circular references.
+ * @returns The exact same object reference passed in, but cleaned.
  */
 export function cleanInPlace<T>(
   obj: T,
