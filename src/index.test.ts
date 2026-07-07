@@ -74,4 +74,29 @@ describe('typepurify core engine', () => {
     // Verify it returned the exact same reference
     expect(result === original).toBe(true);
   });
+
+  it('should safely handle highly nested circular references without stack overflow', () => {
+    const circularObj: any = { id: 1 };
+    circularObj.self = circularObj; // Direct circular
+    circularObj.nested = { parent: circularObj, nullVal: null }; // Nested circular
+
+    const cleaned = clean(circularObj);
+
+    // It should strip the nullVal but preserve the object structure
+    expect(cleaned.id).toBe(1);
+    expect(cleaned.nested).toEqual({ parent: circularObj });
+    // Since it returns the same reference for already seen objects:
+    expect(cleaned.self).toBe(circularObj);
+  });
+
+  it('should safely handle Objects with no prototype (Object.create(null))', () => {
+    const protoLess = Object.create(null);
+    protoLess.valid = true;
+    protoLess.invalid = undefined;
+
+    const cleaned = clean(protoLess);
+
+    expect(cleaned.valid).toBe(true);
+    expect(cleaned).not.toHaveProperty('invalid');
+  });
 });
