@@ -16,13 +16,6 @@
   </a>
 </div>
 
-<br/>
-
-<div align="center">
-  <iframe src="https://typepurify.vallarasuk.com" width="100%" height="500" style="border:1px solid #eaeaea; border-radius:8px; margin-bottom: 20px;">
-    <p>Your browser does not support iframes. <a href="https://typepurify.vallarasuk.com" target="_blank">Click here to view the live preview</a>.</p>
-  </iframe>
-</div>
 ## Overview
 
 `typepurify` is a lightning-fast, zero-schema data cleaner designed to deeply strip `null`, `undefined`, and optionally empty strings/arrays/objects from your data maps while keeping your TypeScript types perfectly aligned.
