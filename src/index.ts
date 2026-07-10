@@ -36,6 +36,8 @@ export interface CleanOptions {
   trimStrings?: boolean;
   /** Custom predicate function. If it returns true, the value is stripped. */
   stripWhen?: (value: any) => boolean;
+  /** Custom transform callback function to mutate or format values before cleaning. */
+  transform?: (value: any, key?: any) => any;
 }
 
 /**
@@ -55,7 +57,12 @@ export function clean<T>(
   obj: T,
   options: CleanOptions = {},
   seen = new WeakSet(),
+  key?: any,
 ): DeepRequired<T> {
+  if (options.transform) {
+    obj = options.transform(obj, key);
+  }
+
   if (obj === null || obj === undefined) {
     return undefined as any;
   }
@@ -79,7 +86,7 @@ export function clean<T>(
   if (Array.isArray(obj)) {
     const cleanedArray = [];
     for (let i = 0; i < obj.length; i++) {
-      const cleanedItem = clean(obj[i], options, seen);
+      const cleanedItem = clean(obj[i], options, seen, i);
       if (cleanedItem !== undefined) {
         cleanedArray.push(cleanedItem);
       }
@@ -91,13 +98,53 @@ export function clean<T>(
     return cleanedArray as any;
   }
 
-  const cleanedObj: Record<string, any> = {};
+  if (obj instanceof Map) {
+    const cleanedMap = new Map();
+    for (const [k, v] of obj.entries()) {
+      const cleanedKey = clean(k, options, seen);
+      const cleanedValue = clean(v, options, seen, k);
+      if (cleanedKey !== undefined && cleanedValue !== undefined) {
+        cleanedMap.set(cleanedKey, cleanedValue);
+      }
+    }
+    if (cleanedMap.size === 0 && options.stripEmptyObjects) {
+      return undefined as any;
+    }
+    return cleanedMap as any;
+  }
+
+  if (obj instanceof Set) {
+    const cleanedSet = new Set();
+    for (const v of obj.values()) {
+      const cleanedValue = clean(v, options, seen);
+      if (cleanedValue !== undefined) {
+        cleanedSet.add(cleanedValue);
+      }
+    }
+    if (cleanedSet.size === 0 && options.stripEmptyArrays) {
+      return undefined as any;
+    }
+    return cleanedSet as any;
+  }
+
+  if (
+    obj instanceof Date ||
+    obj instanceof RegExp ||
+    obj instanceof Error ||
+    typeof obj === 'function'
+  ) {
+    return obj as any;
+  }
+
+  const proto = Object.getPrototypeOf(obj);
+  const cleanedObj: Record<string, any> =
+    proto === null ? Object.create(null) : Object.create(proto);
   let hasKeys = false;
 
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       const val = obj[key];
-      const cleanedVal = clean(val, options, seen);
+      const cleanedVal = clean(val, options, seen, key);
 
       if (cleanedVal !== undefined) {
         cleanedObj[key] = cleanedVal;
@@ -128,7 +175,15 @@ export function cleanInPlace<T>(
   obj: T,
   options: CleanOptions = {},
   seen = new WeakSet(),
+  key?: any,
 ): DeepRequired<T> {
+  if (options.transform) {
+    const transformed = options.transform(obj, key);
+    // If the transform changed the reference, we use the new reference.
+    // Mutability can't apply strictly to primitives, but we update the local reference.
+    obj = transformed;
+  }
+
   if (obj === null || obj === undefined) {
     return undefined as any;
   }
@@ -152,7 +207,7 @@ export function cleanInPlace<T>(
   if (Array.isArray(obj)) {
     let writeIndex = 0;
     for (let i = 0; i < obj.length; i++) {
-      const cleanedItem = cleanInPlace(obj[i], options, seen);
+      const cleanedItem = cleanInPlace(obj[i], options, seen, i);
       if (cleanedItem !== undefined) {
         obj[writeIndex++] = cleanedItem;
       }
@@ -165,12 +220,61 @@ export function cleanInPlace<T>(
     return obj as any;
   }
 
+  if (obj instanceof Map) {
+    for (const [k, v] of Array.from(obj.entries())) {
+      const cleanedKey = cleanInPlace(k, options, seen);
+      const cleanedValue = cleanInPlace(v, options, seen, k);
+
+      // If the key or value was removed, or if the key was transformed to a new key
+      if (cleanedKey === undefined || cleanedValue === undefined) {
+        obj.delete(k);
+      } else {
+        if (cleanedKey !== k) {
+          obj.delete(k);
+          obj.set(cleanedKey, cleanedValue);
+        } else {
+          obj.set(k, cleanedValue);
+        }
+      }
+    }
+    if (obj.size === 0 && options.stripEmptyObjects) {
+      return undefined as any;
+    }
+    return obj as any;
+  }
+
+  if (obj instanceof Set) {
+    for (const v of Array.from(obj.values())) {
+      const cleanedValue = cleanInPlace(v, options, seen);
+
+      if (cleanedValue === undefined) {
+        obj.delete(v);
+      } else if (cleanedValue !== v) {
+        obj.delete(v);
+        obj.add(cleanedValue);
+      }
+    }
+    if (obj.size === 0 && options.stripEmptyArrays) {
+      return undefined as any;
+    }
+    return obj as any;
+  }
+
+  if (
+    obj instanceof Date ||
+    obj instanceof RegExp ||
+    obj instanceof Error ||
+    typeof obj === 'function'
+  ) {
+    return obj as any;
+  }
+
   let hasKeys = false;
 
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       const val = obj[key];
-      const cleanedVal = cleanInPlace(val, options, seen);
+      const cleanedVal = cleanInPlace(val, options, seen, key);
 
       if (cleanedVal === undefined) {
         delete (obj as any)[key];

@@ -6,7 +6,7 @@ This document outlines our current state, where we are heading, and how other de
 
 ## 📍 Current State
 
-**Current Version:** `v1.1.4`
+**Current Version:** `v1.1.9`
 
 - **Features:** Deep cleaning for Objects and Arrays natively.
 - **TypeScript:** Perfectly infers types and removes `null`/`undefined` at compile time via `DeepRequired`.
