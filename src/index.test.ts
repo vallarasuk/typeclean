@@ -99,4 +99,110 @@ describe('typepurify core engine', () => {
     expect(cleaned.valid).toBe(true);
     expect(cleaned).not.toHaveProperty('invalid');
   });
+  it('should deeply clean Map objects', () => {
+    const map = new Map<any, any>();
+    map.set('a', 1);
+    map.set('b', null);
+    map.set(null, 'c');
+    map.set(
+      'd',
+      new Map([
+        ['nested', undefined],
+        ['valid', true],
+      ]),
+    );
+
+    const cleaned = clean(map, { stripEmptyObjects: true });
+
+    expect(cleaned.get('a')).toBe(1);
+    expect(cleaned.has('b')).toBe(false);
+    expect(cleaned.has(null)).toBe(false);
+    expect(cleaned.get('d') instanceof Map).toBe(true);
+    expect(cleaned.get('d').has('nested')).toBe(false);
+    expect(cleaned.get('d').get('valid')).toBe(true);
+  });
+
+  it('should deeply clean Set objects', () => {
+    const set = new Set<any>();
+    set.add(1);
+    set.add(null);
+    set.add(undefined);
+    set.add(2);
+
+    const cleaned = clean(set);
+
+    expect(cleaned.has(1)).toBe(true);
+    expect(cleaned.has(2)).toBe(true);
+    expect(cleaned.has(null)).toBe(false);
+    expect(cleaned.has(undefined)).toBe(false);
+  });
+
+  it('should clean in place Map and Set objects', () => {
+    const map = new Map<any, any>();
+    map.set('a', 1);
+    map.set('b', null);
+
+    const set = new Set<any>();
+    set.add(1);
+    set.add(null);
+
+    cleanInPlace(map);
+    cleanInPlace(set);
+
+    expect(map.has('a')).toBe(true);
+    expect(map.has('b')).toBe(false);
+    expect(set.has(1)).toBe(true);
+    expect(set.has(null)).toBe(false);
+  });
+
+  it('should apply transform callback to values', () => {
+    const payload = {
+      dateString: '2024-01-01',
+      id: '123',
+      removeMe: 'invalid',
+    };
+
+    const cleaned = clean(payload, {
+      transform: (val, key) => {
+        if (key === 'id') return Number(val);
+        if (val === 'invalid') return undefined; // Transform to undefined to strip it
+        return val;
+      },
+    });
+
+    expect(cleaned.id).toBe(123);
+    expect(cleaned.dateString).toBe('2024-01-01');
+    expect(cleaned).not.toHaveProperty('removeMe');
+  });
+
+  it('should safely preserve Date, RegExp, and Error objects', () => {
+    const d = new Date();
+    const r = /test/g;
+    const e = new Error('test');
+    const fn = () => {};
+
+    expect(clean(d)).toBe(d);
+    expect(clean(r)).toBe(r);
+    expect(clean(e)).toBe(e);
+    expect(clean(fn)).toBe(fn);
+
+    expect(cleanInPlace(d)).toBe(d);
+    expect(cleanInPlace(r)).toBe(r);
+    expect(cleanInPlace(e)).toBe(e);
+    expect(cleanInPlace(fn)).toBe(fn);
+  });
+
+  it('should preserve prototypes of custom classes in clean', () => {
+    class MyClass {
+      valid: boolean = true;
+      invalid: any = null;
+    }
+
+    const instance = new MyClass();
+    const cleaned = clean(instance);
+
+    expect(cleaned instanceof MyClass).toBe(true);
+    expect(cleaned.valid).toBe(true);
+    expect(cleaned).not.toHaveProperty('invalid');
+  });
 });
