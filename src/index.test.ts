@@ -50,7 +50,7 @@ describe('typepurify core engine', () => {
     };
 
     const result = clean(payload, {
-      stripWhen: (val) => val === 'N/A' || val === -1,
+      stripWhen: (val: any) => val === 'N/A' || val === -1,
     });
 
     expect(result).toEqual({ valid: true, nested: {} });
@@ -64,7 +64,7 @@ describe('typepurify core engine', () => {
       d: { e: undefined, f: 'N/A' },
     };
 
-    const result = cleanInPlace(original, { stripWhen: (v) => v === 'N/A' });
+    const result = cleanInPlace(original, { stripWhen: (v: any) => v === 'N/A' });
 
     expect(original).toEqual({
       a: 1,
@@ -163,7 +163,7 @@ describe('typepurify core engine', () => {
     };
 
     const cleaned = clean(payload, {
-      transform: (val, key) => {
+      transform: (val: any, key: any) => {
         if (key === 'id') return Number(val);
         if (val === 'invalid') return undefined; // Transform to undefined to strip it
         return val;
@@ -251,7 +251,7 @@ describe('typepurify core engine', () => {
         d: { e: undefined, f: 'N/A' },
       };
 
-      const result = await cleanInPlaceAsync(original, { stripWhen: (v) => v === 'N/A' });
+      const result = await cleanInPlaceAsync(original, { stripWhen: (v: any) => v === 'N/A' });
 
       expect(original).toEqual({
         a: 1,
