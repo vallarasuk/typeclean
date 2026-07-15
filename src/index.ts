@@ -135,8 +135,17 @@ export function clean<T, const O extends CleanOptions = {}>(
     obj instanceof Date ||
     obj instanceof RegExp ||
     obj instanceof Error ||
-    typeof obj === 'function'
+    obj instanceof WeakMap ||
+    obj instanceof WeakSet ||
+    typeof obj === 'function' ||
+    (typeof ArrayBuffer !== 'undefined' && ArrayBuffer.isView(obj)) ||
+    (typeof ArrayBuffer !== 'undefined' && obj instanceof ArrayBuffer) ||
+    (typeof SharedArrayBuffer !== 'undefined' && obj instanceof SharedArrayBuffer)
   ) {
+    return obj as any;
+  }
+
+  if (obj instanceof Promise) {
     return obj as any;
   }
 
@@ -268,8 +277,17 @@ export function cleanInPlace<T, const O extends CleanOptions = {}>(
     obj instanceof Date ||
     obj instanceof RegExp ||
     obj instanceof Error ||
-    typeof obj === 'function'
+    obj instanceof WeakMap ||
+    obj instanceof WeakSet ||
+    typeof obj === 'function' ||
+    (typeof ArrayBuffer !== 'undefined' && ArrayBuffer.isView(obj)) ||
+    (typeof ArrayBuffer !== 'undefined' && obj instanceof ArrayBuffer) ||
+    (typeof SharedArrayBuffer !== 'undefined' && obj instanceof SharedArrayBuffer)
   ) {
+    return obj as any;
+  }
+
+  if (obj instanceof Promise) {
     return obj as any;
   }
 
@@ -393,9 +411,18 @@ export async function cleanAsync<T, const O extends CleanOptions = {}>(
     obj instanceof Date ||
     obj instanceof RegExp ||
     obj instanceof Error ||
-    typeof obj === 'function'
+    obj instanceof WeakMap ||
+    obj instanceof WeakSet ||
+    typeof obj === 'function' ||
+    (typeof ArrayBuffer !== 'undefined' && ArrayBuffer.isView(obj)) ||
+    (typeof ArrayBuffer !== 'undefined' && obj instanceof ArrayBuffer) ||
+    (typeof SharedArrayBuffer !== 'undefined' && obj instanceof SharedArrayBuffer)
   ) {
     return obj as any;
+  }
+
+  if (obj instanceof Promise) {
+    return obj.then((val) => cleanAsync(val, options, seen, undefined, state)) as any;
   }
 
   const proto = Object.getPrototypeOf(obj);
@@ -528,9 +555,18 @@ export async function cleanInPlaceAsync<T, const O extends CleanOptions = {}>(
     obj instanceof Date ||
     obj instanceof RegExp ||
     obj instanceof Error ||
-    typeof obj === 'function'
+    obj instanceof WeakMap ||
+    obj instanceof WeakSet ||
+    typeof obj === 'function' ||
+    (typeof ArrayBuffer !== 'undefined' && ArrayBuffer.isView(obj)) ||
+    (typeof ArrayBuffer !== 'undefined' && obj instanceof ArrayBuffer) ||
+    (typeof SharedArrayBuffer !== 'undefined' && obj instanceof SharedArrayBuffer)
   ) {
     return obj as any;
+  }
+
+  if (obj instanceof Promise) {
+    return obj.then((val) => cleanInPlaceAsync(val, options, seen, undefined, state)) as any;
   }
 
   let hasKeys = false;
