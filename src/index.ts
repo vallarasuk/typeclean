@@ -131,9 +131,14 @@ export function clean<T, const O extends CleanOptions = {}>(
     return cleanedSet as any;
   }
 
+  if (obj instanceof Date) {
+    return new Date(obj.getTime()) as any;
+  }
+  if (obj instanceof RegExp) {
+    return new RegExp(obj.source, obj.flags) as any;
+  }
+
   if (
-    obj instanceof Date ||
-    obj instanceof RegExp ||
     obj instanceof Error ||
     obj instanceof WeakMap ||
     obj instanceof WeakSet ||
@@ -407,9 +412,14 @@ export async function cleanAsync<T, const O extends CleanOptions = {}>(
     return cleanedSet as any;
   }
 
+  if (obj instanceof Date) {
+    return new Date(obj.getTime()) as any;
+  }
+  if (obj instanceof RegExp) {
+    return new RegExp(obj.source, obj.flags) as any;
+  }
+
   if (
-    obj instanceof Date ||
-    obj instanceof RegExp ||
     obj instanceof Error ||
     obj instanceof WeakMap ||
     obj instanceof WeakSet ||

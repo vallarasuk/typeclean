@@ -181,8 +181,10 @@ describe('typepurify core engine', () => {
     const e = new Error('test');
     const fn = () => {};
 
-    expect(clean(d)).toBe(d);
-    expect(clean(r)).toBe(r);
+    expect(clean(d)).not.toBe(d);
+    expect(clean(d)).toEqual(d);
+    expect(clean(r)).not.toBe(r);
+    expect(clean(r)).toEqual(r);
     expect(clean(e)).toBe(e);
     expect(clean(fn)).toBe(fn);
 
