@@ -60,7 +60,7 @@ export interface CleanOptions {
 export function clean<T, const O extends CleanOptions = {}>(
   obj: T,
   options: O = {} as O,
-  seen = new WeakSet(),
+  seen = new WeakMap(),
   key?: any,
 ): DeepRequired<T, O> {
   if (options.transform) {
@@ -84,11 +84,11 @@ export function clean<T, const O extends CleanOptions = {}>(
     return obj as any;
   }
 
-  if (seen.has(obj as any)) return obj as any;
-  seen.add(obj as any);
+  if (seen.has(obj as any)) return seen.get(obj as any);
 
   if (Array.isArray(obj)) {
-    const cleanedArray = [];
+    const cleanedArray: any[] = [];
+    seen.set(obj as any, cleanedArray);
     for (let i = 0; i < obj.length; i++) {
       const cleanedItem = clean(obj[i], options, seen, i);
       if (cleanedItem !== undefined) {
@@ -104,6 +104,7 @@ export function clean<T, const O extends CleanOptions = {}>(
 
   if (obj instanceof Map) {
     const cleanedMap = new Map();
+    seen.set(obj as any, cleanedMap);
     for (const [k, v] of obj.entries()) {
       const cleanedKey = clean(k, options, seen);
       const cleanedValue = clean(v, options, seen, k);
@@ -119,6 +120,7 @@ export function clean<T, const O extends CleanOptions = {}>(
 
   if (obj instanceof Set) {
     const cleanedSet = new Set();
+    seen.set(obj as any, cleanedSet);
     for (const v of obj.values()) {
       const cleanedValue = clean(v, options, seen);
       if (cleanedValue !== undefined) {
@@ -132,10 +134,14 @@ export function clean<T, const O extends CleanOptions = {}>(
   }
 
   if (obj instanceof Date) {
-    return new Date(obj.getTime()) as any;
+    const d = new Date(obj.getTime());
+    seen.set(obj as any, d);
+    return d as any;
   }
   if (obj instanceof RegExp) {
-    return new RegExp(obj.source, obj.flags) as any;
+    const r = new RegExp(obj.source, obj.flags);
+    seen.set(obj as any, r);
+    return r as any;
   }
 
   if (
@@ -147,16 +153,19 @@ export function clean<T, const O extends CleanOptions = {}>(
     (typeof ArrayBuffer !== 'undefined' && obj instanceof ArrayBuffer) ||
     (typeof SharedArrayBuffer !== 'undefined' && obj instanceof SharedArrayBuffer)
   ) {
+    seen.set(obj as any, obj);
     return obj as any;
   }
 
   if (obj instanceof Promise) {
+    seen.set(obj as any, obj);
     return obj as any;
   }
 
   const proto = Object.getPrototypeOf(obj);
   const cleanedObj: Record<string, any> =
     proto === null ? Object.create(null) : Object.create(proto);
+  seen.set(obj as any, cleanedObj);
   let hasKeys = false;
 
   for (const key in obj) {
@@ -336,7 +345,7 @@ const yieldLoop = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 export async function cleanAsync<T, const O extends CleanOptions = {}>(
   obj: T,
   options: O = {} as O,
-  seen = new WeakSet(),
+  seen = new WeakMap(),
   key?: any,
   state: { count: number } = { count: 0 },
 ): Promise<DeepRequired<T, O>> {
@@ -365,11 +374,11 @@ export async function cleanAsync<T, const O extends CleanOptions = {}>(
     return obj as any;
   }
 
-  if (seen.has(obj as any)) return obj as any;
-  seen.add(obj as any);
+  if (seen.has(obj as any)) return seen.get(obj as any);
 
   if (Array.isArray(obj)) {
-    const cleanedArray = [];
+    const cleanedArray: any[] = [];
+    seen.set(obj as any, cleanedArray);
     for (let i = 0; i < obj.length; i++) {
       const cleanedItem = await cleanAsync(obj[i], options, seen, i, state);
       if (cleanedItem !== undefined) {
@@ -385,6 +394,7 @@ export async function cleanAsync<T, const O extends CleanOptions = {}>(
 
   if (obj instanceof Map) {
     const cleanedMap = new Map();
+    seen.set(obj as any, cleanedMap);
     for (const [k, v] of obj.entries()) {
       const cleanedKey = await cleanAsync(k, options, seen, undefined, state);
       const cleanedValue = await cleanAsync(v, options, seen, k, state);
@@ -400,6 +410,7 @@ export async function cleanAsync<T, const O extends CleanOptions = {}>(
 
   if (obj instanceof Set) {
     const cleanedSet = new Set();
+    seen.set(obj as any, cleanedSet);
     for (const v of obj.values()) {
       const cleanedValue = await cleanAsync(v, options, seen, undefined, state);
       if (cleanedValue !== undefined) {
@@ -432,12 +443,15 @@ export async function cleanAsync<T, const O extends CleanOptions = {}>(
   }
 
   if (obj instanceof Promise) {
-    return obj.then((val) => cleanAsync(val, options, seen, undefined, state)) as any;
+    const p = obj.then((val) => cleanAsync(val, options, seen, undefined, state));
+    seen.set(obj as any, p);
+    return p as any;
   }
 
   const proto = Object.getPrototypeOf(obj);
   const cleanedObj: Record<string, any> =
     proto === null ? Object.create(null) : Object.create(proto);
+  seen.set(obj as any, cleanedObj);
   let hasKeys = false;
 
   for (const k in obj) {

@@ -84,9 +84,9 @@ describe('typepurify core engine', () => {
 
     // It should strip the nullVal but preserve the object structure
     expect(cleaned.id).toBe(1);
-    expect(cleaned.nested).toEqual({ parent: circularObj });
-    // Since it returns the same reference for already seen objects:
-    expect(cleaned.self).toBe(circularObj);
+    expect(cleaned.nested).toEqual({ parent: cleaned });
+    // Since it maps already seen objects to their clones:
+    expect(cleaned.self).toBe(cleaned);
   });
 
   it('should safely handle Objects with no prototype (Object.create(null))', () => {
