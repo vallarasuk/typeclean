@@ -16,51 +16,62 @@
   </a>
 </div>
 
-## Overview
+## 🚀 Overview
 
-`typepurify` is a lightning-fast, zero-schema data cleaner designed to deeply strip `null`, `undefined`, and optionally empty strings/arrays/objects from your data maps while keeping your TypeScript types perfectly aligned.
+`typepurify` is a lightning-fast, zero-schema data cleaner designed to deeply strip `null`, `undefined`, and optionally empty strings, arrays, or objects from your data maps while keeping your TypeScript types perfectly aligned.
 
-Instead of writing complex Zod or Joi schemas just to clean a payload, `typepurify` automatically re-infers your types at compile-time and safely handles nested records and array structures.
-
-## ⚡ Why `typepurify`? (vs. Zod / Lodash)
-
-When developers receive messy data from an API, they usually reach for tools that have major drawbacks:
-
-| Feature                  | `typepurify`                 | Zod / Joi                | Lodash                 |
-| :----------------------- | :--------------------------- | :----------------------- | :--------------------- |
-| **Package Size**         | **< 1 kB** ⚡                | ~550 kB 🐢               | ~1.4 MB 🐌             |
-| **TypeScript Inference** | **Perfect (Automatic)**      | Requires Manual Schemas  | Destroys Types (`any`) |
-| **Boilerplate Code**     | **Zero (1 Line)**            | High (Hundreds of lines) | Medium                 |
-| **Execution Speed**      | **Extreme** (`cleanInPlace`) | Slow (Schema parsing)    | Fast                   |
-| **Dependencies**         | **0**                        | 0                        | 0                      |
-
-`typepurify` solves data cleaning perfectly. It dynamically recalculates your TypeScript interfaces at compile-time, physically removing `null` and `undefined` from the output types without writing a single schema.
+Instead of writing complex Zod or Joi schemas just to clean a payload, `typepurify` automatically re-infers your types at compile-time and safely handles nested structures natively.
 
 ---
 
-## 🧠 How it Works
+## 📦 Installation
 
-Understanding how `typepurify` processes your data is simple. It uses a recursive engine to traverse your nested payloads and instantly strips out unwanted, empty, or undefined values based on your configuration.
-
-<div align="center">
-  <img src="https://raw.githubusercontent.com/vallarasuk/typepurify/main/assets/flowchart.svg" alt="typepurify Architecture Engine" width="100%" />
-</div>
-
-## Installation
+Clean, copy-pasteable installation for your favorite package manager:
 
 ```bash
 npm install typepurify
-# or
+```
+
+```bash
 yarn add typepurify
-# or
+```
+
+```bash
 pnpm add typepurify
 ```
 
-## Usage
+---
+
+## 🛠 Supported Data Types
+
+`typepurify` intelligently traverses your data while respecting language primitives.
+
+**✅ Deeply Purified:**
+
+- `Object` (Nested keys are recursively checked)
+- `Array` (Nullish elements are removed, holes are collapsed)
+- `Map` (Keys & values are deep-cleaned)
+- `Set` (Nullish values are dropped)
+
+**🛡️ Safely Ignored (Preserved as-is):**
+
+- `Date`, `RegExp`, `Error`
+- `Promise`
+- `ArrayBuffer`, `SharedArrayBuffer`, `TypedArray` (e.g., `Uint8Array`)
+- `WeakMap`, `WeakSet`, `Function`
+
+---
+
+## 💻 Usage & Visual Examples
+
+### 1. Standard Cleaning (Input vs Output)
+
+Instantly clean up `null` and `undefined` properties from a messy API response.
 
 ```typescript
 import { clean } from 'typepurify';
 
+// ❌ Dirty Input Data
 const messyPayload = {
   id: 101,
   profile: {
@@ -68,38 +79,60 @@ const messyPayload = {
     geo: 'IN',
   },
   tags: ['React', null, 'TypeScript'],
-  emptyString: '',
-  emptyArray: [],
 };
 
-// Standard clean (removes null and undefined natively)
-const cleanPayload = clean(messyPayload);
-/* Result: 
-{ 
-  id: 101, 
-  profile: { geo: "IN" }, 
-  tags: ["React", "TypeScript"], 
-  emptyString: "", 
-  emptyArray: [] 
-} 
-*/
-// Note: Types are automatically inferred! `title` is instantly removed from the `profile` type at compile time.
+// 🧹 Run TypePurify
+const pristinePayload = clean(messyPayload);
 
-// Aggressive clean with Options
-const ultraCleanPayload = clean(messyPayload, {
-  stripEmptyStrings: true,
-  stripEmptyArrays: true,
-});
-/* Result: 
+// ✨ Purified Output
+/*
 { 
   id: 101, 
-  profile: { geo: "IN" }, 
-  tags: ["React", "TypeScript"] 
+  profile: { 
+    geo: 'IN' 
+  }, 
+  tags: ['React', 'TypeScript']
 } 
 */
 ```
 
-## API
+_(💡 Notice: TypeScript automatically updates the type of `pristinePayload` to remove `null` from `profile.title` and `tags`!)_
+
+### 2. Aggressive Cleaning (Stripping Empty Values)
+
+Need to remove empty strings, arrays, and objects? Use the `options` configuration.
+
+```typescript
+import { clean } from 'typepurify';
+
+// ❌ Dirty Input Data
+const messyPayload = {
+  id: 102,
+  description: '',
+  metadata: {},
+  hobbies: [],
+  valid: true,
+};
+
+// 🧹 Run TypePurify with Options
+const ultraCleanPayload = clean(messyPayload, {
+  stripEmptyStrings: true,
+  stripEmptyArrays: true,
+  stripEmptyObjects: true,
+});
+
+// ✨ Purified Output
+/*
+{ 
+  id: 102,
+  valid: true
+} 
+*/
+```
+
+---
+
+## ⚡ API Reference
 
 ### `clean<T>(obj: T, options?: CleanOptions): DeepRequired<T>`
 
@@ -107,15 +140,33 @@ Recursively deep-cleans null/undefined values from objects and arrays, dynamical
 
 ### `cleanInPlace<T>(obj: T, options?: CleanOptions): DeepRequired<T>`
 
-Operates exactly like `clean()`, but **mutates the original payload directly** instead of allocating new objects in memory. This offers maximum performance and zero memory overhead for massive data payloads.
+Operates exactly like `clean()`, but **mutates the original payload directly** instead of allocating new objects in memory. Offers maximum performance and zero memory overhead for massive payloads.
 
-**Options:**
+### `cleanAsync<T>` & `cleanInPlaceAsync<T>`
 
-- `stripEmptyStrings` (boolean): Removes empty strings `""`.
-- `stripEmptyArrays` (boolean): Removes arrays with zero length `[]`.
-- `stripEmptyObjects` (boolean): Removes objects with no keys `{}`.
-- `trimStrings` (boolean): Trims whitespace from strings before processing.
-- `stripWhen` (function): Custom predicate function to strip any specific value (e.g., `(val) => val === 'N/A'`).
+Asynchronous versions of the above that yield to the event loop every 1,000 iterations to prevent blocking the main thread when processing gigantic API payloads.
+
+### Options Configuration (`CleanOptions`)
+
+- `stripEmptyStrings`: Removes `""`
+- `stripEmptyArrays`: Removes `[]`
+- `stripEmptyObjects`: Removes `{}`
+- `trimStrings`: Trims whitespace from strings before processing
+- `stripWhen`: Custom predicate function (e.g. `(val) => val === 'N/A'`)
+- `transform`: Custom callback to mutate values before they are processed
+
+---
+
+## ⚡ Why `typepurify`? (vs. Zod / Lodash)
+
+| Feature                  | `typepurify`                 | Zod / Joi                | Lodash                 |
+| :----------------------- | :--------------------------- | :----------------------- | :--------------------- |
+| **Package Size**         | **< 1 kB** ⚡                | ~550 kB 🐢               | ~1.4 MB 🐌             |
+| **TypeScript Inference** | **Perfect (Automatic)**      | Requires Manual Schemas  | Destroys Types (`any`) |
+| **Boilerplate Code**     | **Zero (1 Line)**            | High (Hundreds of lines) | Medium                 |
+| **Execution Speed**      | **Extreme** (`cleanInPlace`) | Slow (Schema parsing)    | Fast                   |
+
+---
 
 ## Contributing
 
