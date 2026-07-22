@@ -33,12 +33,12 @@ export function cleanParse<T, const O extends CleanOptions = {}>(
 
     const c = json.charCodeAt(i);
 
-    if (c === 0x7b) return parseObject(); // '{'
-    if (c === 0x5b) return parseArray(); // '['
+    if (c === 0x7b) return parseObject(key); // '{'
+    if (c === 0x5b) return parseArray(key); // '['
     if (c === 0x22) return parseString(key); // '"'
     if (c === 0x74) return parseTrue(key); // 't'
     if (c === 0x66) return parseFalse(key); // 'f'
-    if (c === 0x6e) return parseNull(); // 'n'
+    if (c === 0x6e) return parseNull(key); // 'n'
 
     // Numbers
     if (c === 0x2d || (c >= 0x30 && c <= 0x39)) {
@@ -164,16 +164,20 @@ export function cleanParse<T, const O extends CleanOptions = {}>(
     throw new SyntaxError(`Unexpected token at position ${i}`);
   }
 
-  function parseNull(): any {
+  function parseNull(key?: any): any {
     if (json.slice(i, i + 4) === 'null') {
       i += 4;
+      if (options.transform) {
+        const transformed = options.transform(null, key);
+        if (transformed !== null) return transformed;
+      }
       // We always strip null natively, as per clean() logic
       return undefined;
     }
     throw new SyntaxError(`Unexpected token at position ${i}`);
   }
 
-  function parseArray(): any {
+  function parseArray(key?: any): any {
     i++; // '['
     skipWhitespace();
 
@@ -210,12 +214,18 @@ export function cleanParse<T, const O extends CleanOptions = {}>(
     }
 
     if (arr.length === 0 && options.stripEmptyArrays) return undefined;
+
+    if (options.transform) {
+      const transformed = options.transform(arr, key);
+      if (transformed !== arr) return transformed;
+    }
+
     if (options.stripWhen && options.stripWhen(arr)) return undefined;
 
     return arr;
   }
 
-  function parseObject(): any {
+  function parseObject(key?: any): any {
     i++; // '{'
     skipWhitespace();
 
@@ -267,6 +277,12 @@ export function cleanParse<T, const O extends CleanOptions = {}>(
     }
 
     if (!hasKeys && options.stripEmptyObjects) return undefined;
+
+    if (options.transform) {
+      const transformed = options.transform(obj, key);
+      if (transformed !== obj) return transformed;
+    }
+
     if (options.stripWhen && options.stripWhen(obj)) return undefined;
 
     return obj;
