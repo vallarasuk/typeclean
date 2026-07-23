@@ -16,14 +16,14 @@
 
 ### `@typepurify/fetch`
 
-**Status:** 🟡 In Progress
+**Status:** 🟢 Completed (Active Maintenance)
 **Description:** Safe fetch wrapper with auto-purification, retries, timeouts, and JSON parsing.
 
 - `[x]` feat: Initial wrapper around native `fetch`.
 - `[x]` feat: Auto-parse and purify JSON responses.
-- `[ ]` feat: Automatic retry strategies (exponential backoff).
-- `[ ]` feat: Timeout configuration with AbortController.
-- `[ ]` feat: Request/Response interceptors.
+- `[x]` feat: Automatic retry strategies (exponential backoff).
+- `[x]` feat: Timeout configuration with AbortController.
+- `[x]` feat: Request/Response interceptors.
 
 ### `@typepurify/retry`
 

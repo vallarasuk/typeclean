@@ -52,6 +52,45 @@ const pristineData = await tFetch('https://api.example.com/massive-data', undefi
 });
 ```
 
+## ⚙️ Advanced Configuration (Timeouts, Retries, Interceptors)
+
+`tFetch` supports powerful network resilience features natively, without relying on external dependencies!
+
+```typescript
+const resilientData = await tFetch('https://api.example.com/unstable', undefined, {
+  // Abort the request if it takes longer than 5000ms
+  timeout: 5000,
+
+  // If the request fails, retry it up to 3 times
+  retries: 3,
+
+  // Use exponential backoff starting at 1000ms (1s, 2s, 4s)
+  retryDelay: 1000,
+
+  // Intercept requests and responses
+  interceptors: {
+    onRequest: async (req) => {
+      // e.g. Add auth headers dynamically
+      req.init = {
+        ...req.init,
+        headers: { ...req.init?.headers, Authorization: 'Bearer token' },
+      };
+      return req;
+    },
+    onResponse: async (res) => {
+      // Inspect the raw response before it gets parsed
+      console.log('Response Status:', res.status);
+      return res;
+    },
+    onError: async (error) => {
+      // Handle or report the error
+      console.error('Fetch Failed:', error);
+      return error;
+    },
+  },
+});
+```
+
 ### Fallbacks and Errors
 
 - Automatically throws an Error on non-ok HTTP responses (e.g., `404`).
@@ -59,6 +98,6 @@ const pristineData = await tFetch('https://api.example.com/massive-data', undefi
 
 ---
 
-## 🛡️ License
+### License
 
-MIT © [Vallarasu Kanthasamy](https://github.com/vallarasuk)
+MIT © [Vallarasu K](https://github.com/vallarasuk)
