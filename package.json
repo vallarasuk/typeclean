@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/vallarasuk/typepurify.git"
+    "url": "git+https://github.com/vallarasuk/typepurify.git"
   },
   "bugs": {
     "url": "https://github.com/vallarasuk/typepurify/issues"
@@ -50,7 +50,7 @@
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
-    "prettier": "^3.9.4",
+    "prettier": "^3.9.6",
     "turbo": "^2.1.2",
     "typescript": "^6.0.3",
     "vitest": "^4.1.9"
