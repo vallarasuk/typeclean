@@ -85,4 +85,156 @@ describe('tFetch wrapper', () => {
 
     expect(result).toEqual({ name: 'Alice', emptyString: '' });
   });
+
+  describe('Timeout', () => {
+    it('should throw an error if the request exceeds the timeout', async () => {
+      fetchMock.mockImplementationOnce((_url: any, init?: RequestInit) => {
+        return new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => resolve({}), 500);
+          const signal = init?.signal;
+          if (signal) {
+            signal.addEventListener('abort', () => {
+              clearTimeout(timeout);
+              reject((signal as any).reason || new Error('Aborted'));
+            });
+          }
+        });
+      });
+
+      await expect(
+        tFetch('https://api.example.com/data', undefined, { timeout: 50 }),
+      ).rejects.toThrow('Timeout of 50ms exceeded');
+    });
+  });
+
+  describe('Retries', () => {
+    it('should retry the request if it fails', async () => {
+      fetchMock
+        .mockRejectedValueOnce(new Error('Network error'))
+        .mockRejectedValueOnce(new Error('Network error 2'))
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => ({ success: true }),
+        });
+
+      const result = await tFetch('https://api.example.com/data', undefined, {
+        retries: 2,
+        retryDelay: 10,
+      });
+
+      expect(result).toEqual({ success: true });
+      expect(fetchMock).toHaveBeenCalledTimes(3);
+    });
+
+    it('should throw the last error if all retries fail', async () => {
+      fetchMock.mockRejectedValue(new Error('Persistent error'));
+
+      await expect(
+        tFetch('https://api.example.com/data', undefined, { retries: 2, retryDelay: 10 }),
+      ).rejects.toThrow('Persistent error');
+
+      expect(fetchMock).toHaveBeenCalledTimes(3); // Initial + 2 retries
+    });
+  });
+
+  describe('Interceptors', () => {
+    it('should call onRequest interceptor before fetch', async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ success: true }),
+      });
+
+      const onRequest = vi.fn().mockImplementation((req) => {
+        return { ...req, init: { ...req.init, headers: { Authorization: 'Bearer token' } } };
+      });
+
+      await tFetch('https://api.example.com/data', undefined, {
+        interceptors: { onRequest },
+      });
+
+      expect(onRequest).toHaveBeenCalled();
+      expect(fetchMock).toHaveBeenCalledWith('https://api.example.com/data', {
+        headers: { Authorization: 'Bearer token' },
+      });
+    });
+
+    it('should call onResponse interceptor after fetch', async () => {
+      const mockResponse = {
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ success: true }),
+      };
+      fetchMock.mockResolvedValueOnce(mockResponse);
+
+      const onResponse = vi.fn().mockImplementation((res) => {
+        // mock changing something
+        return res;
+      });
+
+      await tFetch('https://api.example.com/data', undefined, {
+        interceptors: { onResponse },
+      });
+
+      expect(onResponse).toHaveBeenCalledWith(mockResponse);
+    });
+
+    it('should call onError interceptor on failure', async () => {
+      fetchMock.mockRejectedValueOnce(new Error('Original Error'));
+
+      const onError = vi.fn().mockImplementation(() => {
+        return new Error('Intercepted Error');
+      });
+
+      await expect(
+        tFetch('https://api.example.com/data', undefined, {
+          interceptors: { onError },
+        }),
+      ).rejects.toThrow('Intercepted Error');
+
+      expect(onError).toHaveBeenCalled();
+    });
+
+    it('should allow synchronous interceptors', async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ success: true }),
+      });
+
+      const onRequest = vi.fn().mockImplementation((req) => req); // returns synchronously
+
+      await tFetch('https://api.example.com/data', undefined, {
+        interceptors: { onRequest },
+      });
+
+      expect(onRequest).toHaveBeenCalled();
+    });
+  });
+
+  describe('Existing AbortSignal', () => {
+    it('should abort if existing signal is aborted', async () => {
+      fetchMock.mockImplementationOnce((_url: any, init?: RequestInit) => {
+        return new Promise((resolve, reject) => {
+          const signal = init?.signal;
+          if (signal?.aborted) {
+            return reject((signal as any).reason || new Error('Aborted'));
+          }
+          if (signal) {
+            signal.addEventListener('abort', () => {
+              reject((signal as any).reason || new Error('Aborted'));
+            });
+          }
+        });
+      });
+
+      const controller = new AbortController();
+      controller.abort(new Error('User aborted'));
+
+      await expect(
+        tFetch('https://api.example.com/data', { signal: controller.signal }, { timeout: 5000 }),
+      ).rejects.toThrow('User aborted');
+    });
+  });
 });
