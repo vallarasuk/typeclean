@@ -9,7 +9,7 @@ export interface RetryOptions {
   shouldRetry?: (error: Error) => boolean;
 }
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Wraps an asynchronous function with robust retry logic.
@@ -18,16 +18,13 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
  * @param options Configuration for retries.
  * @returns The resolved value of the async function.
  */
-export async function withRetry<T>(
-  fn: () => Promise<T>,
-  options: RetryOptions = {}
-): Promise<T> {
+export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
   const retries = options.retries ?? 3;
   const delay = options.delay ?? 1000;
-  
+
   let attempt = 0;
 
-  while (true) {
+  while (attempt <= retries) {
     try {
       return await fn();
     } catch (error: any) {
@@ -48,4 +45,5 @@ export async function withRetry<T>(
       await sleep(delay);
     }
   }
+  throw new Error('Unreachable');
 }
