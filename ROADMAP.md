@@ -1,57 +1,159 @@
-# 🚀 typepurify Roadmap & Future Vision
+# 🚀 TypePurify Ecosystem Roadmap (AI-Optimized)
 
-Welcome to the `typepurify` roadmap! First off, a huge thank you to the community—we reached **1,000+ downloads within the first 24 hours** purely organically!
-
-This document outlines our current state, where we are heading, and how other developers can understand our versioning and contribute to the vision.
-
-## 📍 Current State
-
-**Current Version:** `v1.4.0`
-
-- **Features:** Deep cleaning for Objects and Arrays natively. Includes `cleanParse` for single-pass JSON string parsing and cleaning.
-- **TypeScript:** Perfectly infers types and removes `null`/`undefined` at compile time via `DeepRequired`.
-- **Options:** `stripEmptyStrings`, `stripEmptyArrays`, `stripEmptyObjects`, `trimStrings`, `stripWhen`.
+> **Agent Instruction:** When instructed to "build the next feature", find the first package that is not `[x] Completed`. Then, find the first feature within that package that is `[ ] Pending` and implement it. Update the checkbox to `[x]` upon completion.
 
 ---
 
-## 📅 Upcoming Milestones (From v1.1.4 onwards)
+## 1. API & Backend Utilities
 
-### 🛠️ Version 1.1.5 (Next Patch Release)
+### `@typepurify/core` (Formerly `typepurify`)
 
-_Focus: Minor optimizations and developer experience improvements._
+**Status:** 🟢 Completed (Active Maintenance)
+**Description:** The core engine. Removes null, undefined, empty arrays/objects.
 
-- **JSDoc Enhancements:** Improve inline documentation and IDE hover support for `clean` and `cleanInPlace`.
-- **Edge Case Tests:** Add comprehensive tests for highly nested circular references and complex prototype chains.
+- `[x]` feat: `clean()`, `cleanAsync()`, `cleanParse()` APIs.
+- `[x]` feat: Deep recursive zero-schema type inference.
 
-### 🚀 Version 1.2.0 (The Data Structures Update)
+### `@typepurify/fetch`
 
-_Focus: Expanding runtime support for complex JavaScript objects._
+**Status:** 🟡 In Progress
+**Description:** Safe fetch wrapper with auto-purification, retries, timeouts, and JSON parsing.
 
-- **Runtime `Map` and `Set` Support:** While our TypeScript `DeepRequired` type already understands `Map` and `Set`, the runtime `clean()` function needs to iterate over and clean these structures deeply just like Arrays and Objects.
-- **`transform()` Callback:** Alongside the existing `stripWhen` predicate, introduce a `transform(val, key)` option to allow developers to format or mutate values on the fly (e.g., date string parsing, string-to-number coercion).
-- **Official Benchmarks:** Publish a public benchmark suite comparing `typepurify`'s speed and memory footprint against Lodash (`omitBy`) and Zod.
+- `[x]` feat: Initial wrapper around native `fetch`.
+- `[x]` feat: Auto-parse and purify JSON responses.
+- `[ ]` feat: Automatic retry strategies (exponential backoff).
+- `[ ]` feat: Timeout configuration with AbortController.
+- `[ ]` feat: Request/Response interceptors.
 
-### 🧠 Version 1.3.0 (The Advanced Inference Update)
+### `@typepurify/retry`
 
-_Focus: Pushing the boundaries of TypeScript's type system._
+**Status:** ⚪ Pending
+**Description:** Standalone retry utility for async functions.
 
-- **Strict Mode Inference:** Provide a stricter version of `DeepRequired`. If a developer passes `{ stripEmptyStrings: true }`, the type engine will physically remove `""` (empty string literals) from the TypeScript unions of the returned object.
-- **Asynchronous Cleaning (`cleanAsync`):** A non-blocking version using `setImmediate` or microtasks to traverse massive data payloads without freezing the Node.js event loop.
+- `[ ]` feat: Implement `retry(asyncFn, options)`.
+- `[ ]` feat: Support exponential backoff and jitter algorithms.
+- `[ ]` feat: Implement retry limits and timeout bounds.
 
-### 🌟 Version 3.0.0 (The Systems Era)
+### `@typepurify/dedupe`
 
-_Focus: Complete architectural overhaul for extreme scale across languages._
+**Status:** ⚪ Pending
+**Description:** Request deduplicator to prevent duplicate API calls.
 
-- **Rust / WASM Core:** Explore writing the recursive traversal engine in Rust/WebAssembly for near-native execution speed when cleaning multi-megabyte API responses.
+- `[ ]` feat: In-memory hash-based request caching.
+- `[ ]` feat: Automatic request debouncing.
+
+### `@typepurify/paginate`
+
+**Status:** ⚪ Pending
+**Description:** Smart pagination utilities.
+
+- `[ ]` feat: Cursor-based pagination parser.
+- `[ ]` feat: Offset-based pagination parser.
+- `[ ]` feat: Infinite scroll state machine.
+
+### `@typepurify/cache`
+
+**Status:** ⚪ Pending
+**Description:** Simple in-memory REST API cache.
+
+- `[ ]` feat: TTL-based in-memory caching.
+- `[ ]` feat: LRU (Least Recently Used) eviction policy.
 
 ---
 
-## 🤝 How to Contribute
+## 2. TypeScript Utilities
 
-We're actively looking for developers to help shape the future of payload normalization! If you are interested in any of the roadmap items (especially the upcoming **v1.2.0 Map/Set runtime support**):
+### `@typepurify/types`
 
-1. Check the [Issues](https://github.com/vallarasuk/typepurify/issues) tab.
-2. Join the discussion on architectural decisions.
-3. Submit a PR! (Please ensure all `vitest` unit tests and TypeScript inference checks pass).
+**Status:** ⚪ Pending
+**Description:** Advanced TypeScript utility types and helpers.
 
-Let's make `typepurify` the absolute standard for BFF (Backend-for-Frontend) and API response cleaning in the TypeScript ecosystem.
+- `[ ]` feat: Deep Type Merge utility type.
+- `[ ]` feat: JSON to TS Type Generator logic.
+- `[ ]` feat: Deep Immutable Helper (`DeepReadonly`).
+- `[ ]` feat: Safe Object Path extractor (`get(obj, "path")`).
+
+---
+
+## 3. React Ecosystem
+
+### `@typepurify/react-table`
+
+**Status:** ⚪ Pending
+**Description:** Universal, zero-dependency Data Table.
+
+- `[ ]` feat: Sorting and Filtering engines.
+- `[ ]` feat: Pagination state management.
+- `[ ]` feat: Search and Export to CSV.
+
+### `@typepurify/react-state`
+
+**Status:** ⚪ Pending
+**Description:** Tiny alternatives for form, loading, and query state.
+
+- `[ ]` feat: `useLoading()` - Universal loading state manager.
+- `[ ]` feat: `useSmartForm()` - Tiny alternative to React Hook Form.
+- `[ ]` feat: `useApiQuery()` - Tiny alternative to TanStack Query.
+
+---
+
+## 4. AI & LLMs
+
+### `@typepurify/llm`
+
+**Status:** ⚪ Pending
+**Description:** AI response utilities.
+
+- `[ ]` feat: LLM Response Cleaner (Fixes malformed JSON).
+- `[ ]` feat: Prompt Template Manager.
+- `[ ]` feat: Token Counter (OpenAI, Gemini, Claude).
+- `[ ]` feat: AI Streaming Parser wrapper.
+
+---
+
+## 5. Security & Logging
+
+### `@typepurify/logger`
+
+**Status:** ⚪ Pending
+**Description:** Enterprise logging suite.
+
+- `[ ]` feat: Enterprise Logger (JSON, Colors, File).
+- `[ ]` feat: Request Logger middleware (Express, Fastify, NestJS).
+- `[ ]` feat: Error Reporter with beautiful stack traces.
+
+### `@typepurify/security`
+
+**Status:** ⚪ Pending
+**Description:** Security inspection tools.
+
+- `[ ]` feat: Secret Detector (Find API keys in objects).
+- `[ ]` feat: JWT Inspector and Validator.
+- `[ ]` feat: Input/URL Sanitizers.
+
+---
+
+## 6. CLI & Dev Productivity
+
+### `@typepurify/cli`
+
+**Status:** ⚪ Pending
+**Description:** Scaffolding and analysis CLI.
+
+- `[ ]` feat: Project Bootstrap CLI (`create-my-stack`).
+- `[ ]` feat: Duplicate File / Dependency Analyzer.
+- `[ ]` feat: `.env` Validator and Doc Generator.
+
+---
+
+## 7. JSON Utilities
+
+### `@typepurify/json`
+
+**Status:** ⚪ Pending
+**Description:** Advanced JSON manipulation.
+
+- `[ ]` feat: Deep JSON Diff engine.
+- `[ ]` feat: JSON Repair (Fixes invalid strings).
+- `[ ]` feat: Circular Object Cleaner.
+- `[ ]` feat: Object Comparison Engine (Ignore specific keys/types).

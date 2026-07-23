@@ -4,3 +4,11 @@ coverage
 .DS_Store
 .env
 .eslintcache
+
+# Turborepo
+.turbo
+.turbo/
+turbo.log
+
+# Build files
+tsconfig.tsbuildinfo

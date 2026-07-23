@@ -1,0 +1,60 @@
+{
+  "name": "@typepurify/fetch",
+  "version": "0.2.0",
+  "description": "A lightweight wrapper around native fetch that automatically purifies API responses.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --minify --tsconfig tsconfig.json",
+    "test": "vitest run",
+    "lint": "eslint 'src/**/*.{js,ts}'",
+    "format": "prettier --write 'src/**/*.{js,ts,json,md}'",
+    "format:check": "prettier --check 'src/**/*.{js,ts,json,md}'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vallarasuk/typepurify.git"
+  },
+  "keywords": [
+    "fetch",
+    "fetch-wrapper",
+    "api-client",
+    "typescript",
+    "typepurify",
+    "json-parser",
+    "auto-clean",
+    "http-client",
+    "type-safe-fetch"
+  ],
+  "author": "Vallarasu Kanthasamy",
+  "license": "MIT",
+  "dependencies": {
+    "typepurify": "workspace:*"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.62.1",
+    "@typescript-eslint/parser": "^8.62.1",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.4",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}
