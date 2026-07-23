@@ -24,8 +24,7 @@ export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions =
 
   let attempt = 0;
 
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
+  while (attempt <= retries) {
     try {
       return await fn();
     } catch (error: any) {

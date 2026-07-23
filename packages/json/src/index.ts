@@ -37,8 +37,7 @@ export function safeStringify(
 ): string {
   try {
     return JSON.stringify(obj, replacer, space);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (_error) {
+  } catch {
     return fallback;
   }
 }
