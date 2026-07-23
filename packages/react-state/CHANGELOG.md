@@ -1,5 +1,11 @@
 # @typepurify/react-state
 
+## 0.3.1
+
+### Patch Changes
+
+- fix: add react peerDependencies
+
 ## 0.3.0
 
 ### Minor Changes
