@@ -43,6 +43,10 @@
   "dependencies": {
     "typepurify": "*"
   },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
   "devDependencies": {
     "@testing-library/react": "^16.3.2",
     "@types/react": "^19.2.17",
