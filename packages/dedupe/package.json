@@ -1,7 +1,7 @@
 {
-  "name": "@typepurify/fetch",
-  "version": "0.2.0",
-  "description": "A lightweight wrapper around native fetch that automatically purifies API responses.",
+  "name": "@typepurify/dedupe",
+  "version": "0.1.0",
+  "description": "Request deduplicator to prevent duplicate API calls.",
   "publishConfig": {
     "access": "public"
   },
@@ -35,15 +35,8 @@
     "url": "https://github.com/vallarasuk/typepurify.git"
   },
   "keywords": [
-    "fetch",
-    "fetch-wrapper",
-    "api-client",
-    "typescript",
     "typepurify",
-    "json-parser",
-    "auto-clean",
-    "http-client",
-    "type-safe-fetch"
+    "dedupe"
   ],
   "author": "Vallarasu Kanthasamy",
   "license": "MIT",
