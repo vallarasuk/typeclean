@@ -41,3 +41,41 @@ console.log(`Fetched ${allUsers.length} users in total!`);
 ### Safety Limits
 
 To prevent infinite loops with misconfigured APIs, you can optionally set a maximum number of pages to fetch using `maxPages`. `fetchAllPages` also stops immediately if `fetchPage` ever returns an empty array.
+
+## 🚀 Advanced Features
+
+### Infinite Scroll Manager
+
+Easily handle infinite scrolling UI state in React or Vanilla JS natively without heavy UI libraries.
+
+```typescript
+import { InfiniteScrollManager } from '@typepurify/paginate';
+
+const manager = new InfiniteScrollManager();
+manager.subscribe((state) => {
+  console.log('Loading:', state.isLoading, 'Page:', state.page);
+});
+
+// Start loading the next page
+if (manager.startLoad()) {
+  try {
+    const data = await fetchPage(manager.getState().page);
+    manager.completeLoad(data.length, 20); // 20 is the page limit
+  } catch (err) {
+    manager.failLoad(err);
+  }
+}
+```
+
+### Cursor Management
+
+Native utilities for converting values to base64 cursors and back for cursor-based pagination.
+
+```typescript
+import { createCursor, parseCursor, parseOffset } from '@typepurify/paginate';
+
+const cursor = createCursor('item-id-123'); // => "aXRlbS1pZC0xMjM="
+const original = parseCursor(cursor); // => "item-id-123"
+
+const offset = parseOffset(2, 20); // Page 2 with 20 items per page => offset 20
+```

@@ -84,14 +84,20 @@ export function removeCircular(obj: any): any {
 /**
  * Compares two objects, ignoring specified keys.
  */
-export function compareIgnoreKeys(obj1: any, obj2: any, ignoreKeys: string[] = []): boolean {
+export function compareIgnoreKeys(
+  obj1: any,
+  obj2: any,
+  ignoreKeys: string[] | Set<string> = [],
+): boolean {
   const diff = deepDiff(obj1, obj2);
 
   if (!diff) return true;
 
+  const ignoreSet = ignoreKeys instanceof Set ? ignoreKeys : new Set(ignoreKeys);
+
   // Check if all diffs are in ignoreKeys
   function checkDiff(d: any, path: string): boolean {
-    if (ignoreKeys.includes(path)) return true;
+    if (ignoreSet.has(path)) return true;
 
     // If it's a leaf node diff
     if (

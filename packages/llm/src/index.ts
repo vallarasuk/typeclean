@@ -5,10 +5,17 @@
 export function cleanLlmJson(input: string): string {
   let cleaned = input.trim();
 
-  // Strip markdown code blocks
-  const match = cleaned.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-  if (match) {
-    cleaned = match[1].trim();
+  // Strip markdown code blocks without Regex to prevent ReDoS on massive payloads
+  const startIndex = cleaned.indexOf('```');
+  if (startIndex !== -1) {
+    const endIndex = cleaned.lastIndexOf('```');
+    if (endIndex > startIndex) {
+      let inner = cleaned.substring(startIndex + 3, endIndex).trim();
+      if (inner.startsWith('json')) {
+        inner = inner.substring(4).trim();
+      }
+      cleaned = inner;
+    }
   }
 
   // Remove trailing commas before closing braces/brackets

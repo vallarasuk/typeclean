@@ -617,3 +617,5 @@ export async function cleanInPlaceAsync<T, const O extends CleanOptions = {}>(
 }
 
 export * from './parse';
+export * from './omit';
+export * from './pick';

@@ -13,20 +13,48 @@ const SECRET_PATTERNS = [
  * Returns an array of detected secrets (masked).
  */
 export function detectSecrets(input: any): string[] {
-  const str = typeof input === 'string' ? input : JSON.stringify(input);
-  if (!str) return [];
+  if (!input) return [];
 
   const found: string[] = [];
-  for (const pattern of SECRET_PATTERNS) {
-    const matches = str.match(new RegExp(pattern, 'g'));
-    if (matches) {
-      for (const match of matches) {
-        // Mask the secret for reporting
-        const masked = match.substring(0, 4) + '...' + match.substring(match.length - 4);
-        found.push(masked);
+
+  const checkString = (str: string) => {
+    for (const pattern of SECRET_PATTERNS) {
+      const matches = str.match(new RegExp(pattern, 'g'));
+      if (matches) {
+        for (const match of matches) {
+          const masked = match.substring(0, 4) + '...' + match.substring(match.length - 4);
+          found.push(masked);
+        }
       }
     }
+  };
+
+  if (typeof input === 'string') {
+    checkString(input);
+  } else if (typeof input === 'object') {
+    // Fast recursive string search without allocating a massive JSON payload
+    const seen = new WeakSet();
+    const traverse = (obj: any) => {
+      if (typeof obj !== 'object' || obj === null || seen.has(obj)) return;
+      seen.add(obj);
+      if (Array.isArray(obj)) {
+        for (let i = 0; i < obj.length; i++) {
+          if (typeof obj[i] === 'string') checkString(obj[i]);
+          else traverse(obj[i]);
+        }
+      } else {
+        for (const key in obj) {
+          if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            const val = obj[key];
+            if (typeof val === 'string') checkString(val);
+            else traverse(val);
+          }
+        }
+      }
+    };
+    traverse(input);
   }
+
   return found;
 }
 

@@ -41,3 +41,7 @@ const cachedFetch = withCache(fetchUserData, {
   keyGenerator: (userId) => `user_${userId}`,
 });
 ```
+
+### 🚀 High-Performance $O(1)$ LRU Eviction
+
+Unlike other cache libraries that run heavy arrays sorts to evict old items, `@typepurify/cache` is extremely optimized. It natively exploits `Map` object insertion-order preserving iterators (`this.store.keys().next().value`) to perform Least-Recently-Used (LRU) evictions in $O(1)$ constant time! This means you can cache tens of thousands of items without any CPU degradation.

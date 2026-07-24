@@ -74,6 +74,30 @@ describe('@typepurify/react-table', () => {
     expect(result.current.paginatedData[0].name).toBe('Charlie'); // age 35
   });
 
+  it('should handle sorting with accessors', () => {
+    const columnsWithAccessor = [
+      { key: 'name', header: 'Name' },
+      { key: 'computed', header: 'Computed', accessor: (row: any) => row.age * 2 },
+    ];
+    const { result } = renderHook(() => useTable({ data: mockData, columns: columnsWithAccessor }));
+
+    // Sort by computed ASC
+    act(() => {
+      result.current.handleSort('computed');
+    });
+
+    expect(result.current.sortDirection).toBe('asc');
+    expect(result.current.paginatedData[0].name).toBe('Bob'); // age 25 * 2 = 50
+
+    // Sort by computed DESC
+    act(() => {
+      result.current.handleSort('computed');
+    });
+
+    expect(result.current.sortDirection).toBe('desc');
+    expect(result.current.paginatedData[0].name).toBe('Charlie'); // age 35 * 2 = 70
+  });
+
   it('should generate CSV correctly', () => {
     const { result } = renderHook(() => useTable({ data: mockData, columns }));
 

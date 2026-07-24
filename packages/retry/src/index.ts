@@ -47,15 +47,21 @@ export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions =
         throw new TimeoutError('Operation timed out');
       }
 
+      const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
       let timeoutId: any;
       const timeoutPromise = new Promise<never>((_, reject) => {
-        timeoutId = setTimeout(
-          () => reject(new TimeoutError('Operation timed out')),
-          timeRemaining,
-        );
+        timeoutId = setTimeout(() => {
+          controller?.abort();
+          reject(new TimeoutError('Operation timed out'));
+        }, timeRemaining);
       });
 
       try {
+        // We pass the abort signal to the function if it supports it.
+        // Assuming the user's function can take an AbortSignal, we would pass it.
+        // For backwards compatibility without breaking types, we just use Promise.race,
+        // but if they passed a custom fetch inside, they should hook up to the signal.
+        // In the future, we could augment `fn` to accept a signal.
         const result = await Promise.race([fn(), timeoutPromise]);
         clearTimeout(timeoutId);
         return result;

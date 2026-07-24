@@ -31,14 +31,25 @@ export class Logger {
     this.currentLevel = this.levelValue[options.level || 'info'];
   }
 
+  private safeStringify(obj: any): string {
+    const cache = new Set();
+    return JSON.stringify(obj, (key, value) => {
+      if (typeof value === 'object' && value !== null) {
+        if (cache.has(value)) return '[Circular]';
+        cache.add(value);
+      }
+      return value;
+    });
+  }
+
   private formatMessage(level: LogLevel, message: string, meta?: any): string {
     const timestamp = new Date().toISOString();
 
     if (this.options.format === 'json') {
-      return JSON.stringify({ timestamp, level, message, ...meta });
+      return this.safeStringify({ timestamp, level, message, ...meta });
     }
 
-    const metaStr = meta ? ` ${JSON.stringify(meta)}` : '';
+    const metaStr = meta ? ` ${this.safeStringify(meta)}` : '';
     let levelStr = `[${level.toUpperCase()}]`;
 
     if (this.options.colorize) {

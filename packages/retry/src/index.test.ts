@@ -76,11 +76,25 @@ describe('@typepurify/retry', () => {
     expect(duration).toBeGreaterThanOrEqual(0);
   });
 
-  it('should throw TimeoutError if execution exceeds timeout', async () => {
+  it('should throw TimeoutError if execution exceeds timeout and abort the controller', async () => {
+    let abortCalled = false;
+    const globalAny = global as any;
+    const originalAbortController = globalAny.AbortController;
+
+    // Mock AbortController
+    globalAny.AbortController = class MockAbortController {
+      abort() {
+        abortCalled = true;
+      }
+    };
+
     const fn = vi.fn().mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 200)));
 
     await expect(withRetry(fn, { timeout: 100 })).rejects.toThrow(TimeoutError);
     expect(fn).toHaveBeenCalledTimes(1);
+    expect(abortCalled).toBe(true);
+
+    globalAny.AbortController = originalAbortController;
   });
 
   it('should throw TimeoutError during retry delay', async () => {

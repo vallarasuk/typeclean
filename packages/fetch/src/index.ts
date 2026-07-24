@@ -120,3 +120,62 @@ export async function tFetch<T = any>(
 
   throw lastError;
 }
+
+/**
+ * Creates a customized instance of tFetch with default options and global interceptors.
+ * Useful for setting up base URLs, global auth headers, or global error handling.
+ */
+export function createTFetch(
+  defaultPurifyOptions?: PurifyFetchOptions & { baseUrl?: string | URL },
+) {
+  return async function customTFetch<T = any>(
+    input: RequestInfo | URL,
+    init?: RequestInit,
+    purifyOptions?: PurifyFetchOptions,
+  ): Promise<T> {
+    const mergedOptions = { ...defaultPurifyOptions, ...purifyOptions };
+
+    // Merge interceptors (execute global first, then local)
+    const interceptors = {
+      onRequest: async (req: { input: RequestInfo | URL; init?: RequestInit }) => {
+        let currentReq = req;
+        if (defaultPurifyOptions?.interceptors?.onRequest) {
+          currentReq = await defaultPurifyOptions.interceptors.onRequest(currentReq);
+        }
+        if (purifyOptions?.interceptors?.onRequest) {
+          currentReq = await purifyOptions.interceptors.onRequest(currentReq);
+        }
+        return currentReq;
+      },
+      onResponse: async (res: Response) => {
+        let currentRes = res;
+        if (defaultPurifyOptions?.interceptors?.onResponse) {
+          currentRes = await defaultPurifyOptions.interceptors.onResponse(currentRes);
+        }
+        if (purifyOptions?.interceptors?.onResponse) {
+          currentRes = await purifyOptions.interceptors.onResponse(currentRes);
+        }
+        return currentRes;
+      },
+      onError: async (err: any) => {
+        let currentErr = err;
+        if (defaultPurifyOptions?.interceptors?.onError) {
+          currentErr = (await defaultPurifyOptions.interceptors.onError(currentErr)) ?? currentErr;
+        }
+        if (purifyOptions?.interceptors?.onError) {
+          currentErr = (await purifyOptions.interceptors.onError(currentErr)) ?? currentErr;
+        }
+        return currentErr;
+      },
+    };
+
+    mergedOptions.interceptors = interceptors;
+
+    let finalInput = input;
+    if (defaultPurifyOptions?.baseUrl && typeof input === 'string' && !input.startsWith('http')) {
+      finalInput = new URL(input, defaultPurifyOptions.baseUrl).toString();
+    }
+
+    return tFetch<T>(finalInput, init, mergedOptions);
+  };
+}

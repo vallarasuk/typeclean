@@ -237,4 +237,57 @@ describe('tFetch wrapper', () => {
       ).rejects.toThrow('User aborted');
     });
   });
+
+  describe('createTFetch', () => {
+    it('should create an instance with global options and interceptors', async () => {
+      const globalOnRequest = vi.fn().mockImplementation((req) => req);
+      const customFetch = (await import('./index')).createTFetch({
+        baseUrl: 'https://api.global.com',
+        interceptors: { onRequest: globalOnRequest },
+      });
+
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ success: true }),
+      });
+
+      await customFetch('/data');
+
+      expect(globalOnRequest).toHaveBeenCalled();
+      expect(fetchMock).toHaveBeenCalledWith('https://api.global.com/data', undefined);
+    });
+
+    it('should merge global and local interceptors', async () => {
+      const globalOnRequest = vi
+        .fn()
+        .mockImplementation((req) => ({ ...req, init: { headers: { global: 'yes' } } }));
+      const localOnRequest = vi
+        .fn()
+        .mockImplementation((req) => ({
+          ...req,
+          init: { ...req.init, headers: { ...req.init?.headers, local: 'yes' } },
+        }));
+
+      const customFetch = (await import('./index')).createTFetch({
+        interceptors: { onRequest: globalOnRequest },
+      });
+
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ success: true }),
+      });
+
+      await customFetch('https://api.example.com/data', undefined, {
+        interceptors: { onRequest: localOnRequest },
+      });
+
+      expect(globalOnRequest).toHaveBeenCalled();
+      expect(localOnRequest).toHaveBeenCalled();
+      expect(fetchMock).toHaveBeenCalledWith('https://api.example.com/data', {
+        headers: { global: 'yes', local: 'yes' },
+      });
+    });
+  });
 });
