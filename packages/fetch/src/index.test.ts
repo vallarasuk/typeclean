@@ -262,12 +262,10 @@ describe('tFetch wrapper', () => {
       const globalOnRequest = vi
         .fn()
         .mockImplementation((req) => ({ ...req, init: { headers: { global: 'yes' } } }));
-      const localOnRequest = vi
-        .fn()
-        .mockImplementation((req) => ({
-          ...req,
-          init: { ...req.init, headers: { ...req.init?.headers, local: 'yes' } },
-        }));
+      const localOnRequest = vi.fn().mockImplementation((req) => ({
+        ...req,
+        init: { ...req.init, headers: { ...req.init?.headers, local: 'yes' } },
+      }));
 
       const customFetch = (await import('./index')).createTFetch({
         interceptors: { onRequest: globalOnRequest },
