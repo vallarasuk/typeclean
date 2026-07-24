@@ -52,6 +52,34 @@ const pristineData = await tFetch('https://api.example.com/massive-data', undefi
 });
 ```
 
+### `createTFetch` Factory
+
+Need global interceptors for auth tokens or default headers across your entire app? Use the `createTFetch` factory to generate a customized `tFetch` instance!
+
+```typescript
+import { createTFetch } from '@typepurify/fetch';
+
+export const apiFetch = createTFetch({
+  baseUrl: 'https://api.myapp.com/v1',
+  interceptors: {
+    onRequest: (req) => {
+      // Automatically add auth token to EVERY request
+      req.init = {
+        ...req.init,
+        headers: {
+          ...req.init?.headers,
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      };
+      return req;
+    },
+  },
+});
+
+// Usage anywhere in your app:
+const user = await apiFetch('/me'); // Automatically hits baseUrl and injects token!
+```
+
 ## ⚙️ Advanced Configuration (Timeouts, Retries, Interceptors)
 
 `tFetch` supports powerful network resilience features natively, without relying on external dependencies!

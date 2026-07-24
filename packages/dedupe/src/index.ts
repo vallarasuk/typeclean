@@ -33,7 +33,20 @@ export function dedupe<T extends (...args: any[]) => Promise<any>>(
   >();
 
   return (async (...args: any[]) => {
-    const key = options.keyGenerator ? options.keyGenerator(...args) : JSON.stringify(args);
+    let key = '';
+    if (options.keyGenerator) {
+      key = options.keyGenerator(...args);
+    } else {
+      // Fast path: single primitive argument (very common in API fetching)
+      if (args.length === 1 && typeof args[0] !== 'object' && typeof args[0] !== 'function') {
+        key = String(args[0]);
+      } else if (args.length === 0) {
+        key = '()';
+      } else {
+        // Slow path: serialize complex objects
+        key = JSON.stringify(args);
+      }
+    }
 
     if (options.debounce && options.debounce > 0) {
       return new Promise((resolve, reject) => {

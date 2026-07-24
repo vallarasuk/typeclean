@@ -58,5 +58,12 @@ describe('@typepurify/json', () => {
 
       expect(compareIgnoreKeys(obj1, obj2, ['user.meta.ts'])).toBe(true);
     });
+
+    it('should support Set for ignored keys', () => {
+      const obj1 = { user: { id: 1, meta: { ts: 1 } } };
+      const obj2 = { user: { id: 1, meta: { ts: 2 } } };
+
+      expect(compareIgnoreKeys(obj1, obj2, new Set(['user.meta.ts']))).toBe(true);
+    });
   });
 });

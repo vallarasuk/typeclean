@@ -166,6 +166,10 @@ const pristinePayload = cleanParse(rawJson, {
 
 Recursively deep-cleans null/undefined values from objects and arrays, dynamically re-inferring compile-time types without generating heavy schemas.
 
+### `deepOmit<T, K>(obj: T, keys: K[] | Set<K>)` & `deepPick<T, K>(obj: T, keys: K[] | Set<K>)`
+
+Highly optimized $O(1)$ constant-time utilities that deep-traverse your payload to instantly remove (`deepOmit`) or selectively extract (`deepPick`) specific keys at any nesting level. Using a `Set` makes this vastly more performant than lodash on large payloads!
+
 ### `cleanInPlace<T>(obj: T, options?: CleanOptions): DeepRequired<T>`
 
 Operates exactly like `clean()`, but **mutates the original payload directly** instead of allocating new objects in memory. Offers maximum performance and zero memory overhead for massive payloads.

@@ -1,4 +1,31 @@
 import { useState, useCallback } from 'react';
+import { clean, type DeepRequired, type CleanOptions } from 'typepurify';
+
+/**
+ * A useState alternative that automatically deep-cleans the initial state and any subsequent updates.
+ */
+export function usePurifiedState<T, const O extends CleanOptions = {}>(
+  initialState: T | (() => T),
+  options?: O,
+): [DeepRequired<T, O>, (newState: T | ((prevState: DeepRequired<T, O>) => T)) => void] {
+  const [state, setState] = useState<DeepRequired<T, O>>(() => {
+    const value = typeof initialState === 'function' ? (initialState as Function)() : initialState;
+    return clean(value, options);
+  });
+
+  const setPurifiedState = useCallback(
+    (newState: T | ((prevState: DeepRequired<T, O>) => T)) => {
+      setState((prevState) => {
+        const valueToClean =
+          typeof newState === 'function' ? (newState as Function)(prevState) : newState;
+        return clean(valueToClean, options);
+      });
+    },
+    [options],
+  );
+
+  return [state, setPurifiedState];
+}
 
 /**
  * Universal loading state manager.

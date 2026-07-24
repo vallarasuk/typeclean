@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useLoading, useSmartForm, useApiQuery } from './index';
+import { useLoading, useSmartForm, useApiQuery, usePurifiedState } from './index';
 
 describe('@typepurify/react-state', () => {
   describe('useLoading', () => {
@@ -90,6 +90,35 @@ describe('@typepurify/react-state', () => {
 
       expect(result.current.isLoading).toBe(false);
       expect(result.current.data).toBe('data');
+    });
+  });
+
+  describe('usePurifiedState', () => {
+    it('should purify initial state', () => {
+      const { result } = renderHook(() =>
+        usePurifiedState({ a: 1, b: null, c: undefined, d: '' }, { stripEmptyStrings: true }),
+      );
+      expect(result.current[0]).toEqual({ a: 1 });
+    });
+
+    it('should purify state on update', () => {
+      const { result } = renderHook(() => usePurifiedState({ a: 1 }));
+
+      act(() => {
+        result.current[1]({ a: 2, b: null, c: [1, null, 2] } as any);
+      });
+
+      expect(result.current[0]).toEqual({ a: 2, c: [1, 2] });
+    });
+
+    it('should handle functional updates', () => {
+      const { result } = renderHook(() => usePurifiedState({ count: 1 }));
+
+      act(() => {
+        result.current[1]((prev: any) => ({ count: prev.count + 1, extra: null }));
+      });
+
+      expect(result.current[0]).toEqual({ count: 2 });
     });
   });
 });

@@ -17,10 +17,14 @@
 
 ### 📦 Available Packages
 
-| Package                                   | Version                                                                                                       | Description                                                                                                           |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| **[`typepurify`](packages/core)**         | [![npm](https://img.shields.io/npm/v/typepurify.svg)](https://www.npmjs.com/package/typepurify)               | The core engine. Deeply cleans `null`, `undefined`, and empty structures while strictly maintaining TypeScript types. |
-| **[`@typepurify/fetch`](packages/fetch)** | [![npm](https://img.shields.io/npm/v/@typepurify/fetch.svg)](https://www.npmjs.com/package/@typepurify/fetch) | A safe `fetch` wrapper that auto-parses and purifies JSON responses using the core engine.                            |
+| Package                                               | Version                                                                                                                   | Description                                                                                                           |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **[`typepurify`](packages/core)**                     | [![npm](https://img.shields.io/npm/v/typepurify.svg)](https://www.npmjs.com/package/typepurify)                           | The core engine. Deeply cleans `null`, `undefined`, and empty structures while strictly maintaining TypeScript types. |
+| **[`@typepurify/fetch`](packages/fetch)**             | [![npm](https://img.shields.io/npm/v/@typepurify/fetch.svg)](https://www.npmjs.com/package/@typepurify/fetch)             | A safe `fetch` wrapper that auto-parses and purifies JSON responses using the core engine.                            |
+| **[`@typepurify/react-state`](packages/react-state)** | [![npm](https://img.shields.io/npm/v/@typepurify/react-state.svg)](https://www.npmjs.com/package/@typepurify/react-state) | React hooks (like `usePurifiedState`) that automatically sanitize and type-cast component state on the fly.           |
+| **[`@typepurify/dedupe`](packages/dedupe)**           | [![npm](https://img.shields.io/npm/v/@typepurify/dedupe.svg)](https://www.npmjs.com/package/@typepurify/dedupe)           | Highly optimized async deduplication and debouncing to prevent redundant API calls and state thrashing.               |
+| **[`@typepurify/security`](packages/security)**       | [![npm](https://img.shields.io/npm/v/@typepurify/security.svg)](https://www.npmjs.com/package/@typepurify/security)       | Memory-efficient secret detection (zero-allocation tree-walking) and JWT inspection.                                  |
+| **[`@typepurify/llm`](packages/llm)**                 | [![npm](https://img.shields.io/npm/v/@typepurify/llm.svg)](https://www.npmjs.com/package/@typepurify/llm)                 | ReDoS-safe JSON extraction from LLM outputs, stream parsing, and prompt management.                                   |
 
 ---
 
@@ -45,9 +49,30 @@ const dirtyData = { name: 'Alice', age: null, metadata: {}, tags: [] };
 const cleanData = clean(dirtyData);
 // => { name: "Alice" } (TypeScript strictly knows this is just { name: string })
 
-// 2. Safe API Fetching (Auto-cleans the response)
-const user = await tFetch<{ name: string; age: number | null }>('https://api.example.com/user');
+// 2. Deep Omit & Pick (O(1) Time Complexity)
+import { deepOmit, deepPick } from 'typepurify';
+const massivePayload = { id: 1, secret: 'xoxb-123', nested: { secret: 'xoxb-456', data: 'ok' } };
+const safePayload = deepOmit(massivePayload, ['secret']); // Strips 'secret' at any depth!
+
+// 3. Safe API Fetching with Global Interceptors
+const myFetch = createTFetch({
+  baseUrl: 'https://api.example.com',
+  interceptors: {
+    onRequest: (req) => {
+      req.init = { ...req.init, headers: { Auth: 'Bearer 123' } };
+      return req;
+    },
+  },
+});
+const user = await myFetch<{ name: string; age: number | null }>('/user');
 // Response automatically drops all the `null` and empty junk your backend sends!
+
+// 4. React State Purification
+import { usePurifiedState } from '@typepurify/react-state';
+function MyComponent() {
+  // State is automatically cleaned on mount and on every setState!
+  const [state, setState] = usePurifiedState({ name: 'Bob', empty: null });
+}
 ```
 
 ---

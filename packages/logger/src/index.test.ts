@@ -20,6 +20,24 @@ describe('@typepurify/logger', () => {
       consoleSpy.mockRestore();
     });
 
+    it('should safely stringify circular references', () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      const logger = new Logger({ format: 'json', level: 'info' });
+
+      const circularObj: any = { name: 'cycle' };
+      circularObj.self = circularObj;
+
+      logger.info('Circular Log', circularObj);
+
+      expect(consoleSpy).toHaveBeenCalledTimes(1);
+      const output = JSON.parse(consoleSpy.mock.calls[0][0]);
+
+      expect(output.name).toBe('cycle');
+      expect(output.self.self).toBe('[Circular]');
+
+      consoleSpy.mockRestore();
+    });
+
     it('should respect log levels', () => {
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const logger = new Logger({ level: 'warn' });

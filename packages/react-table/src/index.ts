@@ -41,17 +41,26 @@ export function useTable<T>(options: UseTableOptions<T>) {
       });
     }
 
-    // Sort
+    // Sort (Optimized)
     if (sortKey && sortDirection) {
       const col = options.columns.find((c) => c.key === sortKey);
-      result.sort((a, b) => {
-        const valA = col?.accessor ? col.accessor(a) : (a as any)[sortKey];
-        const valB = col?.accessor ? col.accessor(b) : (b as any)[sortKey];
+      if (col) {
+        // Pre-compute accessors to avoid O(N log N) accessor calls
+        const mapped = result.map((item, index) => {
+          return {
+            index,
+            value: col.accessor ? col.accessor(item) : (item as any)[sortKey],
+          };
+        });
 
-        if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
-        if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
-        return 0;
-      });
+        mapped.sort((a, b) => {
+          if (a.value < b.value) return sortDirection === 'asc' ? -1 : 1;
+          if (a.value > b.value) return sortDirection === 'asc' ? 1 : -1;
+          return 0;
+        });
+
+        result = mapped.map((el) => result[el.index]);
+      }
     }
 
     return result;

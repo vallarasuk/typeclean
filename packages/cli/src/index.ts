@@ -45,19 +45,17 @@ export class EnvValidator {
 export function findDuplicateDependencies(
   packageJsons: Record<string, any>[],
 ): Record<string, number> {
-  const counts: Record<string, number> = {};
+  const seen = new Set<string>();
+  const duplicates: Record<string, number> = {};
 
   for (const pkg of packageJsons) {
     const deps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) };
     for (const dep of Object.keys(deps)) {
-      counts[dep] = (counts[dep] || 0) + 1;
-    }
-  }
-
-  const duplicates: Record<string, number> = {};
-  for (const [dep, count] of Object.entries(counts)) {
-    if (count > 1) {
-      duplicates[dep] = count;
+      if (seen.has(dep)) {
+        duplicates[dep] = (duplicates[dep] || 1) + 1;
+      } else {
+        seen.add(dep);
+      }
     }
   }
 

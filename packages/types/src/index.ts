@@ -53,7 +53,17 @@ export function jsonToTsType(json: any): string {
 export function get<T = any>(obj: any, path: string | string[], defaultValue?: T): T {
   if (!obj) return defaultValue as T;
 
-  const keys = Array.isArray(path) ? path : path.split(/[.[\]'"]/).filter(Boolean);
+  if (typeof path === 'string' && path in obj) {
+    return obj[path];
+  }
+
+  // Advanced path parsing (handles 'a[b].c' and 'a["b"]' correctly)
+  const keys = Array.isArray(path)
+    ? path
+    : path
+        .replace(/\[(["']?)(.*?)\1\]/g, '.$2') // Convert [key] or ['key'] to .key
+        .split('.')
+        .filter(Boolean);
 
   let result = obj;
   for (const key of keys) {

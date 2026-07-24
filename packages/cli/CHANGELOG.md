@@ -1,5 +1,13 @@
 # @typepurify/cli
 
+## 0.4.2
+
+### Patch Changes
+
+- Patch release for all packages
+- Updated dependencies
+  - typepurify@1.5.2
+
 ## 0.4.0
 
 ### Minor Changes

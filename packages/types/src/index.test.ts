@@ -16,11 +16,13 @@ describe('@typepurify/types', () => {
 
   describe('get', () => {
     it('should extract values using string paths', () => {
-      const obj = { a: { b: { c: [1, 2, { d: 'target' }] } } };
+      const obj = { a: { b: { c: [1, 2, { d: 'target' }] } }, 'x.y': 'dotKey' };
 
       expect(get(obj, 'a.b.c.2.d')).toBe('target');
       expect(get(obj, 'a.b.c[2].d')).toBe('target'); // Array index notation
       expect(get(obj, ['a', 'b', 'c', '2', 'd'])).toBe('target'); // Array path
+      expect(get(obj, 'a["b"].c[2]["d"]')).toBe('target'); // Complex bracket notation
+      expect(get(obj, 'x.y')).toBe('dotKey'); // Flat dot key
     });
 
     it('should return default value if not found', () => {

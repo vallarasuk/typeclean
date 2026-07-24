@@ -35,3 +35,22 @@ function MyComponent() {
   return <div>{data ?? 'Loading...'}</div>;
 }
 ```
+
+### `usePurifiedState`
+
+A highly optimized state hook that deeply cleans your data (removing `null`, `undefined`, and empty structures) automatically on initialization and every state update!
+
+```tsx
+import { usePurifiedState } from '@typepurify/react-state';
+
+function ProfileEditor() {
+  // Initial state is cleaned immediately!
+  const [user, setUser] = usePurifiedState({
+    name: 'Alice',
+    bio: null, // this gets completely dropped
+    tags: [], // this gets dropped too!
+  });
+
+  return <button onClick={() => setUser({ name: 'Bob', bio: undefined })}>Update User</button>;
+}
+```

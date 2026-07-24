@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.2
+
+### Patch Changes
+
+- Patch release for all packages
+
 ## 1.5.0
 
 ### Minor Changes
