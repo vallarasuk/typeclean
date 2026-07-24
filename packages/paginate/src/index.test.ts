@@ -55,7 +55,7 @@ describe('@typepurify/paginate', () => {
 
       // Next load
       manager.startLoad();
-      
+
       // Complete load with partial page (end of list)
       manager.completeLoad(5, 10);
       expect(manager.getState().hasMore).toBe(false);
@@ -72,7 +72,7 @@ describe('@typepurify/paginate', () => {
 
       expect(manager.getState().isLoading).toBe(false);
       expect(manager.getState().error?.message).toBe('Network error');
-      
+
       manager.reset();
       expect(manager.getState().page).toBe(1);
       expect(manager.getState().error).toBeNull();

@@ -59,7 +59,7 @@ export function inspectJwt(token: string): { header: any; payload: any } | null 
 export function isJwtExpired(token: string): boolean {
   const inspected = inspectJwt(token);
   if (!inspected || !inspected.payload.exp) return true; // Treat invalid/no-exp as expired
-  
+
   // exp is in seconds, convert to ms
   return Date.now() >= inspected.payload.exp * 1000;
 }
@@ -70,11 +70,15 @@ export function isJwtExpired(token: string): boolean {
 export function sanitizeUrl(url: string): string {
   const trimmed = url.trim();
   const lower = trimmed.toLowerCase();
-  
-  if (lower.startsWith('javascript:') || lower.startsWith('data:') || lower.startsWith('vbscript:')) {
+
+  if (
+    lower.startsWith('javascript:') ||
+    lower.startsWith('data:') ||
+    lower.startsWith('vbscript:')
+  ) {
     return 'about:blank';
   }
-  
+
   return trimmed;
 }
 

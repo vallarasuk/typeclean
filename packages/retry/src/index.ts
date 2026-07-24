@@ -36,7 +36,7 @@ export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions =
   const initialDelay = options.delay ?? 1000;
   const backoff = options.backoff ?? 'fixed';
   const jitter = options.jitter ?? false;
-  
+
   let attempt = 0;
   const startTime = Date.now();
 
@@ -49,7 +49,10 @@ export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions =
 
       let timeoutId: any;
       const timeoutPromise = new Promise<never>((_, reject) => {
-        timeoutId = setTimeout(() => reject(new TimeoutError('Operation timed out')), timeRemaining);
+        timeoutId = setTimeout(
+          () => reject(new TimeoutError('Operation timed out')),
+          timeRemaining,
+        );
       });
 
       try {
@@ -82,10 +85,9 @@ export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions =
         options.onRetry(error, attempt);
       }
 
-      let currentDelay = backoff === 'exponential' 
-        ? initialDelay * Math.pow(2, attempt - 1) 
-        : initialDelay;
-        
+      let currentDelay =
+        backoff === 'exponential' ? initialDelay * Math.pow(2, attempt - 1) : initialDelay;
+
       if (jitter) {
         // Add random jitter between 0 and currentDelay
         currentDelay = Math.random() * currentDelay;
@@ -93,11 +95,11 @@ export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions =
 
       // Ensure sleep honors the overall timeout if defined
       if (options.timeout !== undefined) {
-         const timeRemaining = options.timeout - (Date.now() - startTime);
-         if (timeRemaining <= 0) {
-             throw new TimeoutError('Operation timed out');
-         }
-         currentDelay = Math.min(currentDelay, timeRemaining);
+        const timeRemaining = options.timeout - (Date.now() - startTime);
+        if (timeRemaining <= 0) {
+          throw new TimeoutError('Operation timed out');
+        }
+        currentDelay = Math.min(currentDelay, timeRemaining);
       }
 
       await sleep(currentDelay);

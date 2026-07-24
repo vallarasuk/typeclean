@@ -10,8 +10,8 @@ export type DeepMerge<T, U> = T extends object
             ? DeepMerge<T[K], U[K]>
             : U[K]
           : K extends keyof T
-          ? T[K]
-          : never;
+            ? T[K]
+            : never;
       }
     : U
   : U;
@@ -22,10 +22,10 @@ export type DeepMerge<T, U> = T extends object
 export type DeepReadonly<T> = T extends Function
   ? T
   : T extends Array<infer U>
-  ? ReadonlyArray<DeepReadonly<U>>
-  : T extends object
-  ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
-  : T;
+    ? ReadonlyArray<DeepReadonly<U>>
+    : T extends object
+      ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+      : T;
 
 /**
  * Maps a primitive value to its TypeScript type string representation.
@@ -54,7 +54,7 @@ export function get<T = any>(obj: any, path: string | string[], defaultValue?: T
   if (!obj) return defaultValue as T;
 
   const keys = Array.isArray(path) ? path : path.split(/[.[\]'"]/).filter(Boolean);
-  
+
   let result = obj;
   for (const key of keys) {
     if (result == null) return defaultValue as T;

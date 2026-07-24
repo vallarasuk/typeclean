@@ -27,7 +27,10 @@ export function dedupe<T extends (...args: any[]) => Promise<any>>(
 ): T {
   const ongoingPromises = new Map<string, Promise<any>>();
   const debounceTimers = new Map<string, any>();
-  const pendingResolvers = new Map<string, { resolve: (val: any) => void; reject: (err: any) => void }[]>();
+  const pendingResolvers = new Map<
+    string,
+    { resolve: (val: any) => void; reject: (err: any) => void }[]
+  >();
 
   return (async (...args: any[]) => {
     const key = options.keyGenerator ? options.keyGenerator(...args) : JSON.stringify(args);
@@ -58,7 +61,7 @@ export function dedupe<T extends (...args: any[]) => Promise<any>>(
 
           promise.then(
             (val) => resolvers.forEach((r) => r.resolve(val)),
-            (err) => resolvers.forEach((r) => r.reject(err))
+            (err) => resolvers.forEach((r) => r.reject(err)),
           );
         }, options.debounce);
 

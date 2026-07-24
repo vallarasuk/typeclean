@@ -35,16 +35,18 @@ export class EnvValidator {
 
   generateExample(): string {
     const keys = Object.keys(this.envMap);
-    return keys.map(k => `${k}=`).join('\n');
+    return keys.map((k) => `${k}=`).join('\n');
   }
 }
 
 /**
  * Analyzes package.json for duplicate dependencies across workspaces or sections.
  */
-export function findDuplicateDependencies(packageJsons: Record<string, any>[]): Record<string, number> {
+export function findDuplicateDependencies(
+  packageJsons: Record<string, any>[],
+): Record<string, number> {
   const counts: Record<string, number> = {};
-  
+
   for (const pkg of packageJsons) {
     const deps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) };
     for (const dep of Object.keys(deps)) {
@@ -77,17 +79,17 @@ export function bootstrapProject(targetDir: string, template: 'node' | 'react' =
     type: 'module',
     scripts: {
       start: template === 'react' ? 'vite' : 'node index.js',
-    }
+    },
   };
 
-  fs.writeFileSync(
-    path.join(targetDir, 'package.json'), 
-    JSON.stringify(pkgJson, null, 2)
-  );
+  fs.writeFileSync(path.join(targetDir, 'package.json'), JSON.stringify(pkgJson, null, 2));
 
   if (template === 'node') {
     fs.writeFileSync(path.join(targetDir, 'index.js'), 'console.log("Hello Node!");');
   } else {
-    fs.writeFileSync(path.join(targetDir, 'index.jsx'), 'export default () => <div>Hello React</div>;');
+    fs.writeFileSync(
+      path.join(targetDir, 'index.jsx'),
+      'export default () => <div>Hello React</div>;',
+    );
   }
 }

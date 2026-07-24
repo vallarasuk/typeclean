@@ -17,7 +17,7 @@ describe('@typepurify/types', () => {
   describe('get', () => {
     it('should extract values using string paths', () => {
       const obj = { a: { b: { c: [1, 2, { d: 'target' }] } } };
-      
+
       expect(get(obj, 'a.b.c.2.d')).toBe('target');
       expect(get(obj, 'a.b.c[2].d')).toBe('target'); // Array index notation
       expect(get(obj, ['a', 'b', 'c', '2', 'd'])).toBe('target'); // Array path
@@ -40,7 +40,7 @@ describe('@typepurify/types', () => {
       const obj: Merged = {
         a: 'str',
         b: 1,
-        x: { y: 2, z: true }
+        x: { y: 2, z: true },
       };
       expect(obj.x.z).toBe(true);
     });

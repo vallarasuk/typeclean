@@ -79,7 +79,7 @@ describe('@typepurify/react-table', () => {
 
     const csv = result.current.exportToCsv('test.csv');
     const lines = csv.split('\n');
-    
+
     expect(lines[0]).toBe('ID,Name,Age');
     expect(lines[1]).toBe('"1","Alice","30"');
     expect(lines.length).toBe(4); // header + 3 rows

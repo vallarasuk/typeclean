@@ -28,9 +28,9 @@ export function useSmartForm<T extends Record<string, any>>(initialValues: T) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (name: keyof T, value: any) => {
-    setValues(prev => ({ ...prev, [name]: value }));
+    setValues((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 

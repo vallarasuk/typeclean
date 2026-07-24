@@ -17,7 +17,7 @@ export type SortDirection = 'asc' | 'desc' | null;
 export function useTable<T>(options: UseTableOptions<T>) {
   const [data, setData] = useState<T[]>(options.data);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // Sorting State
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
@@ -33,8 +33,8 @@ export function useTable<T>(options: UseTableOptions<T>) {
     // Search / Filter
     if (searchQuery) {
       const lowerQuery = searchQuery.toLowerCase();
-      result = result.filter(row => {
-        return options.columns.some(col => {
+      result = result.filter((row) => {
+        return options.columns.some((col) => {
           const val = col.accessor ? col.accessor(row) : (row as any)[col.key];
           return String(val).toLowerCase().includes(lowerQuery);
         });
@@ -43,11 +43,11 @@ export function useTable<T>(options: UseTableOptions<T>) {
 
     // Sort
     if (sortKey && sortDirection) {
-      const col = options.columns.find(c => c.key === sortKey);
+      const col = options.columns.find((c) => c.key === sortKey);
       result.sort((a, b) => {
         const valA = col?.accessor ? col.accessor(a) : (a as any)[sortKey];
         const valB = col?.accessor ? col.accessor(b) : (b as any)[sortKey];
-        
+
         if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
         if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
         return 0;
@@ -69,7 +69,10 @@ export function useTable<T>(options: UseTableOptions<T>) {
   const handleSort = (key: string) => {
     if (sortKey === key) {
       if (sortDirection === 'asc') setSortDirection('desc');
-      else if (sortDirection === 'desc') { setSortDirection(null); setSortKey(null); }
+      else if (sortDirection === 'desc') {
+        setSortDirection(null);
+        setSortKey(null);
+      }
     } else {
       setSortKey(key);
       setSortDirection('asc');
@@ -77,18 +80,20 @@ export function useTable<T>(options: UseTableOptions<T>) {
   };
 
   const exportToCsv = (filename: string = 'export.csv') => {
-    const headers = options.columns.map(c => c.header).join(',');
-    const rows = processedData.map(row => {
-      return options.columns.map(col => {
-        const val = col.accessor ? col.accessor(row) : (row as any)[col.key];
-        // Escape quotes
-        const stringVal = String(val ?? '').replace(/"/g, '""');
-        return `"${stringVal}"`;
-      }).join(',');
+    const headers = options.columns.map((c) => c.header).join(',');
+    const rows = processedData.map((row) => {
+      return options.columns
+        .map((col) => {
+          const val = col.accessor ? col.accessor(row) : (row as any)[col.key];
+          // Escape quotes
+          const stringVal = String(val ?? '').replace(/"/g, '""');
+          return `"${stringVal}"`;
+        })
+        .join(',');
     });
-    
+
     const csvContent = [headers, ...rows].join('\n');
-    
+
     // Create download trigger (client side only)
     if (typeof window !== 'undefined') {
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -99,7 +104,7 @@ export function useTable<T>(options: UseTableOptions<T>) {
       link.click();
       document.body.removeChild(link);
     }
-    
+
     return csvContent;
   };
 
@@ -112,11 +117,11 @@ export function useTable<T>(options: UseTableOptions<T>) {
     pageSize,
     totalPages,
     totalItems: processedData.length,
-    
+
     // Data
     paginatedData,
     processedData,
-    
+
     // Actions
     setSearchQuery,
     setCurrentPage,

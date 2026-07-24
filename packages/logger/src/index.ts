@@ -8,8 +8,8 @@ export interface LoggerOptions {
 
 const LEVEL_COLORS: Record<LogLevel, string> = {
   debug: '\x1b[34m', // Blue
-  info: '\x1b[32m',  // Green
-  warn: '\x1b[33m',  // Yellow
+  info: '\x1b[32m', // Green
+  warn: '\x1b[33m', // Yellow
   error: '\x1b[31m', // Red
 };
 const RESET_COLOR = '\x1b[0m';
@@ -61,10 +61,18 @@ export class Logger {
     }
   }
 
-  debug(message: string, meta?: any) { this.log('debug', message, meta); }
-  info(message: string, meta?: any) { this.log('info', message, meta); }
-  warn(message: string, meta?: any) { this.log('warn', message, meta); }
-  error(message: string, meta?: any) { this.log('error', message, meta); }
+  debug(message: string, meta?: any) {
+    this.log('debug', message, meta);
+  }
+  info(message: string, meta?: any) {
+    this.log('info', message, meta);
+  }
+  warn(message: string, meta?: any) {
+    this.log('warn', message, meta);
+  }
+  error(message: string, meta?: any) {
+    this.log('error', message, meta);
+  }
 }
 
 /**
@@ -91,10 +99,13 @@ export function requestLogger(logger: Logger) {
  */
 export function formatError(err: Error): string {
   if (!err.stack) return err.message;
-  
+
   const lines = err.stack.split('\n');
   const header = `💥 ${lines[0]}`;
-  const stack = lines.slice(1).map(line => `  ↳ ${line.trim()}`).join('\n');
-  
+  const stack = lines
+    .slice(1)
+    .map((line) => `  ↳ ${line.trim()}`)
+    .join('\n');
+
   return `${header}\n${stack}`;
 }

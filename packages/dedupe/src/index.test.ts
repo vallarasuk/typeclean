@@ -72,7 +72,7 @@ describe('@typepurify/dedupe', () => {
   it('should debounce identical calls within the window', async () => {
     const fn = vi.fn().mockResolvedValue('ok');
     const deduped = dedupe(fn, { debounce: 20 });
-    
+
     // Call 3 times quickly
     const p1 = deduped(1);
     const p2 = deduped(1);
@@ -90,19 +90,19 @@ describe('@typepurify/dedupe', () => {
   it('should reset the debounce timer if called before expiry', async () => {
     const fn = vi.fn().mockResolvedValue('ok');
     const deduped = dedupe(fn, { debounce: 30 });
-    
+
     const p1 = deduped(1);
-    
-    await new Promise(r => setTimeout(r, 20)); // wait 20ms
+
+    await new Promise((r) => setTimeout(r, 20)); // wait 20ms
     const p2 = deduped(1); // this resets the 30ms timer
-    
+
     // Total wait > 30ms, but fn shouldn't fire yet because p2 reset the timer
     expect(fn).not.toHaveBeenCalled();
-    
-    await new Promise(r => setTimeout(r, 40));
-    
+
+    await new Promise((r) => setTimeout(r, 40));
+
     expect(fn).toHaveBeenCalledTimes(1);
-    
+
     const results = await Promise.all([p1, p2]);
     expect(results).toEqual(['ok', 'ok']);
   });

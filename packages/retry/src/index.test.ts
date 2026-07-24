@@ -52,11 +52,13 @@ describe('@typepurify/retry', () => {
 
   it('should backoff exponentially', async () => {
     const fn = vi.fn().mockRejectedValue(new Error('fail'));
-    
+
     const startTime = Date.now();
-    await expect(withRetry(fn, { retries: 2, delay: 100, backoff: 'exponential' })).rejects.toThrow('fail');
+    await expect(withRetry(fn, { retries: 2, delay: 100, backoff: 'exponential' })).rejects.toThrow(
+      'fail',
+    );
     const endTime = Date.now();
-    
+
     // Delays should be 100ms, 200ms -> total ~300ms
     const duration = endTime - startTime;
     expect(duration).toBeGreaterThanOrEqual(250);
@@ -65,24 +67,26 @@ describe('@typepurify/retry', () => {
 
   it('should support jitter', async () => {
     const fn = vi.fn().mockRejectedValue(new Error('fail'));
-    
+
     const startTime = Date.now();
     await expect(withRetry(fn, { retries: 2, delay: 100, jitter: true })).rejects.toThrow('fail');
     const endTime = Date.now();
-    
+
     const duration = endTime - startTime;
     expect(duration).toBeGreaterThanOrEqual(0);
   });
 
   it('should throw TimeoutError if execution exceeds timeout', async () => {
-    const fn = vi.fn().mockImplementation(() => new Promise(resolve => setTimeout(resolve, 200)));
-    
+    const fn = vi.fn().mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 200)));
+
     await expect(withRetry(fn, { timeout: 100 })).rejects.toThrow(TimeoutError);
     expect(fn).toHaveBeenCalledTimes(1);
   });
 
   it('should throw TimeoutError during retry delay', async () => {
     const fn = vi.fn().mockRejectedValue(new Error('fail'));
-    await expect(withRetry(fn, { retries: 2, delay: 1000, timeout: 500 })).rejects.toThrow(TimeoutError);
+    await expect(withRetry(fn, { retries: 2, delay: 1000, timeout: 500 })).rejects.toThrow(
+      TimeoutError,
+    );
   });
 });

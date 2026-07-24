@@ -24,7 +24,7 @@ export class Cache<T = any> {
   }
 
   /**
-   * Retrieves a value from the cache. 
+   * Retrieves a value from the cache.
    * If the item is expired, it is removed and undefined is returned.
    * If the item is valid, it is refreshed as the most recently used (LRU bump).
    */

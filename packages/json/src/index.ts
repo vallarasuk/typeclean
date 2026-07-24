@@ -4,7 +4,7 @@
  */
 export function deepDiff(obj1: any, obj2: any): any {
   if (obj1 === obj2) return undefined;
-  
+
   if (typeof obj1 !== 'object' || obj1 === null || typeof obj2 !== 'object' || obj2 === null) {
     return { old: obj1, new: obj2 };
   }
@@ -45,7 +45,7 @@ export function repairJson(str: string): string {
   repaired = repaired.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
   // Remove trailing commas
   repaired = repaired.replace(/,\s*([}\]])/g, '$1');
-  
+
   return repaired;
 }
 
@@ -86,18 +86,23 @@ export function removeCircular(obj: any): any {
  */
 export function compareIgnoreKeys(obj1: any, obj2: any, ignoreKeys: string[] = []): boolean {
   const diff = deepDiff(obj1, obj2);
-  
+
   if (!diff) return true;
 
   // Check if all diffs are in ignoreKeys
   function checkDiff(d: any, path: string): boolean {
     if (ignoreKeys.includes(path)) return true;
-    
+
     // If it's a leaf node diff
-    if (d.old !== undefined || d.new !== undefined || d.added !== undefined || d.removed !== undefined) {
+    if (
+      d.old !== undefined ||
+      d.new !== undefined ||
+      d.added !== undefined ||
+      d.removed !== undefined
+    ) {
       return false;
     }
-    
+
     // Iterate nested
     for (const key in d) {
       const currentPath = path ? `${path}.${key}` : key;
@@ -105,7 +110,7 @@ export function compareIgnoreKeys(obj1: any, obj2: any, ignoreKeys: string[] = [
         return false;
       }
     }
-    
+
     return true;
   }
 

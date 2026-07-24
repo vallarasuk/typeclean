@@ -9,7 +9,7 @@ describe('@typepurify/cli', () => {
     it('should parse env file correctly', () => {
       const content = 'DB_HOST=localhost\nDB_USER=root\n# comment\nDB_PASS=';
       const validator = new EnvValidator(content);
-      
+
       const missing = validator.validate(['DB_HOST', 'DB_USER', 'DB_PASS', 'PORT']);
       expect(missing).toEqual(['DB_PASS', 'PORT']);
     });
@@ -17,7 +17,7 @@ describe('@typepurify/cli', () => {
     it('should generate env.example', () => {
       const content = 'DB_HOST=localhost\nDB_USER=root';
       const validator = new EnvValidator(content);
-      
+
       const example = validator.generateExample();
       expect(example).toContain('DB_HOST=\nDB_USER=');
     });
@@ -26,12 +26,12 @@ describe('@typepurify/cli', () => {
   describe('findDuplicateDependencies', () => {
     it('should find duplicates', () => {
       const pkgs: any[] = [
-        { dependencies: { 'react': '18.0.0', 'lodash': '4.0.0' } },
-        { devDependencies: { 'typescript': '5.0.0', 'react': '18.0.0' } }
+        { dependencies: { react: '18.0.0', lodash: '4.0.0' } },
+        { devDependencies: { typescript: '5.0.0', react: '18.0.0' } },
       ];
 
       const duplicates = findDuplicateDependencies(pkgs);
-      expect(duplicates).toEqual({ 'react': 2 });
+      expect(duplicates).toEqual({ react: 2 });
     });
   });
 

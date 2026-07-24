@@ -11,7 +11,7 @@ describe('@typepurify/json', () => {
     it('should diff nested objects', () => {
       const obj1 = { a: 1, b: { c: 2 }, d: 3 };
       const obj2 = { a: 1, b: { c: 3, e: 4 }, d: undefined };
-      
+
       const diff = deepDiff(obj1, obj2);
       expect(diff.a).toBeUndefined();
       expect(diff.b.c).toEqual({ old: 2, new: 3 });
@@ -33,11 +33,11 @@ describe('@typepurify/json', () => {
     it('should replace circular references with [Circular]', () => {
       const a: any = { id: 1 };
       a.self = a;
-      
+
       const cleaned = removeCircular(a);
       expect(cleaned.id).toBe(1);
       expect(cleaned.self).toBe('[Circular]');
-      
+
       // Should now be safely stringifiable
       expect(() => JSON.stringify(cleaned)).not.toThrow();
     });
@@ -47,7 +47,7 @@ describe('@typepurify/json', () => {
     it('should ignore specified keys during comparison', () => {
       const obj1 = { id: 1, name: 'Alice', updatedAt: 'yesterday' };
       const obj2 = { id: 1, name: 'Alice', updatedAt: 'today' };
-      
+
       expect(compareIgnoreKeys(obj1, obj2)).toBe(false);
       expect(compareIgnoreKeys(obj1, obj2, ['updatedAt'])).toBe(true);
     });
@@ -55,7 +55,7 @@ describe('@typepurify/json', () => {
     it('should ignore nested keys', () => {
       const obj1 = { user: { id: 1, meta: { ts: 1 } } };
       const obj2 = { user: { id: 1, meta: { ts: 2 } } };
-      
+
       expect(compareIgnoreKeys(obj1, obj2, ['user.meta.ts'])).toBe(true);
     });
   });

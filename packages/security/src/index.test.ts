@@ -25,8 +25,10 @@ describe('@typepurify/security', () => {
   describe('JWT', () => {
     // Header: {"alg":"HS256","typ":"JWT"} -> eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
     // Payload: {"sub":"123","exp":9999999999} -> eyJzdWIiOiIxMjMiLCJleHAiOjk5OTk5OTk5OTl9
-    const validJwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJleHAiOjk5OTk5OTk5OTl9.signature';
-    const expiredJwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJleHAiOjF9.signature'; // exp = 1
+    const validJwt =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJleHAiOjk5OTk5OTk5OTl9.signature';
+    const expiredJwt =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJleHAiOjF9.signature'; // exp = 1
 
     it('should inspect valid JWT', () => {
       const inspected = inspectJwt(validJwt);
@@ -54,7 +56,9 @@ describe('@typepurify/security', () => {
     });
 
     it('should escape HTML', () => {
-      expect(escapeHtml('<script>alert("1 & 2")</script>')).toBe('&lt;script&gt;alert(&quot;1 &amp; 2&quot;)&lt;/script&gt;');
+      expect(escapeHtml('<script>alert("1 & 2")</script>')).toBe(
+        '&lt;script&gt;alert(&quot;1 &amp; 2&quot;)&lt;/script&gt;',
+      );
     });
   });
 });

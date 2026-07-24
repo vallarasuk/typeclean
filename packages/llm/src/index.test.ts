@@ -11,7 +11,7 @@ describe('@typepurify/llm', () => {
     it('should fix trailing commas', () => {
       const raw = '{"a": 1, "b": 2,}';
       expect(cleanLlmJson(raw)).toBe('{"a": 1, "b": 2}');
-      
+
       const rawArr = '[1, 2, ]';
       expect(cleanLlmJson(rawArr)).toBe('[1, 2]');
     });
@@ -42,12 +42,12 @@ describe('@typepurify/llm', () => {
     it('should parse valid data chunks and ignore DONE', () => {
       const chunk = 'data: {"id": 1}\ndata: {"id": 2}\ndata: [DONE]\n';
       const generator = parseAiStream(chunk);
-      
+
       const results = [];
       for (const item of generator) {
         results.push(item);
       }
-      
+
       expect(results).toEqual(['{"id": 1}', '{"id": 2}']);
     });
   });
